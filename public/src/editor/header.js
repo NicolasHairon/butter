@@ -7,6 +7,7 @@ define([ "ui/widget/tooltip" ], function( Tooltip ) {
   return function( editorAreaDOMRoot, editorModule ) {
     var _mediaButton = editorAreaDOMRoot.querySelector( ".butter-editor-header-media" ),
         _popcornButton = editorAreaDOMRoot.querySelector( ".butter-editor-header-popcorn" ),
+        _chapterButton = editorAreaDOMRoot.querySelector( ".butter-editor-header-chapter" ),
         _projectButton = editorAreaDOMRoot.querySelector( ".butter-editor-header-share" ),
         _loginToShareTooltip,
         _waitForMediaTooltip;
@@ -14,6 +15,7 @@ define([ "ui/widget/tooltip" ], function( Tooltip ) {
     var _focusMap = {
       "media-editor": _mediaButton,
       "plugin-list": _popcornButton,
+      "chapter-editor": _chapterButton,
       "project-editor": _projectButton
     };
 
@@ -39,6 +41,10 @@ define([ "ui/widget/tooltip" ], function( Tooltip ) {
 
     _mediaButton.addEventListener( "click", function() {
       editorModule.openEditor( "media-editor" );
+    }, false );
+
+    _chapterButton.addEventListener( "click", function() {
+      editorModule.openEditor( "chapter-editor" );
     }, false );
 
     function openPluginList() {

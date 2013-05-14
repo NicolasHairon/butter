@@ -724,6 +724,34 @@ textarea {
 }
 
 /*********************************************************
+* Chapter Editor -- src/layouts/chapter-editor.html
+*/
+
+.butter-new-entry-link,
+.butter-render-link,
+ {
+  width: 49%;
+}
+
+#toc-div {
+  margin: 15px 0;
+  visibility: hidden;
+  &.visible {
+    visibility: visible;
+  }
+}
+
+
+.butter-clear-link {
+  .clearfix();
+  visibility: hidden;
+  &.visible {
+    visibility: visible;
+  }
+}
+
+
+/*********************************************************
 * Trimmer
 */
 
@@ -878,4 +906,8 @@ textarea {
   border: 1px solid @baseLightOutline;
   cursor: pointer;
   .box-sizing( border-box );
+}
+
+.chapter-editor-container {
+  margin: 10px;
 }

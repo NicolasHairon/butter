@@ -11,7 +11,7 @@ define( [ "core/eventmanager", "core/trackevent", "./editor",
           "ui/toggler", "util/lang", "text!layouts/editor-area.html",
           "./default", "core/logger", "./header",
           // Included here to register themselves.
-          "./media-gallery-editor", "./project-editor", "./sequencer-editor" ],
+          "./media-gallery-editor", "./chapter-editor", "./project-editor", "./sequencer-editor" ],
   function( EventManager, TrackEvent, Editor,
             Toggler, LangUtils, EDITOR_AREA_LAYOUT,
             DefaultEditor, Logger, Header ){
@@ -159,6 +159,10 @@ define( [ "core/eventmanager", "core/trackevent", "./editor",
      */
     _this.editTrackEvent = function( trackEvent ) {
       var editorType = Editor.isRegistered( trackEvent.type ) ? trackEvent.type : "default";
+
+      if( trackEvent.type == "chapter" ) {
+        editorType = "chapter-editor";
+      }
 
       if ( !trackEvent || !( trackEvent instanceof TrackEvent ) ) {
         throw new Error( "trackEvent must be valid to start an editor." );

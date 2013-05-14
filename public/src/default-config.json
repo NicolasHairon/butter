@@ -63,6 +63,16 @@
         "type": "sequencer",
         "hidden": true,
         "icon": "{{baseDir}}resources/icons/media.png"
+      },
+      {
+        "type": "chapter",
+        "hidden": true,
+        "icon": "{{baseDir}}templates/assets/plugins/chapter/chapter-icon.png"
+      },
+      {
+        "type": "toc",
+        "hidden": true,
+        "icon": "{{baseDir}}templates/assets/plugins/toc/toc-icon.png"
       }
     ]
   },

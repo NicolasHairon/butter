@@ -1,0 +1,70 @@
+<div class="butter-editor share-editor allow-scrollbar">
+  <h1>Chapter your project</h1>
+  <div class="error-message-container">
+    <div class="error-message"></div>
+  </div>
+  <div class="butter-editor-body scrollbar-container">
+    <div class="scrollbar-outer">
+      <div class="container editor-container scrollbar-inner chapter-editor-container">
+        <a class="butter-btn btn-light butter-new-entry-link" target="_blank"><span class="icon icon-plus"></span>New entry</a>
+        <a class="butter-btn btn-light butter-render-link btn-green" target="_blank"><span class="icon icon-eye-open"></span>Render</a>
+
+        <!--div class="dd" id="toc-div-draggable">
+            <ol class="dd-list">
+                <li class="dd-item dd3-item">
+                    <div class="dd-handle dd3-handle">Drag</div><div class="dd3-content">Drag a new entry</div>
+                </li>
+            </ol>
+        </div-->
+
+        <div class="dd" id="toc-div">
+          <ol class="dd-list" id="toc-ol">
+          </ol>
+        </div>
+
+        <a class="butter-btn btn-light butter-clear-link butter-btn-menu-control"><span class="mg-delete-btn icon icon-trash"></span>Remove all</a>
+        <!-- class="butter-btn btn-light butter-duplicate-toc-link butter-btn-menu-control"><span class="icon icon-plus"></span>Duplicate toc event</a-->
+        
+        <!--div class="dd" id="toc-div">
+            <ol class="dd-list">
+                <li class="dd-item dd3-item" data-id="13">
+                    <div class="dd-handle dd3-handle">Drag</div><div class="dd3-content">Item 13</div>
+                </li>
+                <li class="dd-item dd3-item" data-id="14">
+                    <div class="dd-handle dd3-handle">Drag</div><div class="dd3-content">Item 14</div>
+                </li>
+                <li class="dd-item dd3-item" data-id="15">
+                    <div class="dd-handle dd3-handle">Drag</div><div class="dd3-content">Item 15</div>
+                    <ol class="dd-list">
+                        <li class="dd-item dd3-item" data-id="16">
+                            <div class="dd-handle dd3-handle">Drag</div><div class="dd3-content">Item 16</div>
+                        </li>
+                        <li class="dd-item dd3-item" data-id="17">
+                            <div class="dd-handle dd3-handle">Drag</div><div class="dd3-content">Item 17</div>
+                        </li>
+                        <li class="dd-item dd3-item" data-id="18">
+                            <div class="dd-handle dd3-handle">Drag</div><div class="dd3-content">Item 18</div>
+                        </li>
+                    </ol>
+                </li>
+            </ol>
+        </div-->
+
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- This is added to table of contents for each new item -->
+<li class="toc-item dd-item dd3-item">
+    <div class="toc-item-handle dd-handle dd3-handle">Drag</div>
+    <div class="toc-item-content dd3-content" contenteditable="true">New entry</div>
+    <div class="toc-item-time toc-item-time-start">
+      <input type="text" value="0:00">
+    </div>
+    <div class="toc-item-time toc-item-time-end">
+      <input type="text" value="0:00">
+    </div>
+    <div class="toc-item-delete dd-delete dd3-delete">x</div>
+</li>

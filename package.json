@@ -96,7 +96,8 @@
     "node-uuid": "1.4.0",
     "requirejs-middleware": "0.0.5",
     "sequelize": "1.5.0",
-    "shelljs": "0.1.2"
+    "shelljs": "0.1.2",
+    "nestable": "git://github.com/dbushell/Nestable"
   },
   "optionalDependencies": {
     "node-statsd": "git://github.com/sivy/node-statsd.git#d6997fff",
