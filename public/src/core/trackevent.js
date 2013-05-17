@@ -299,6 +299,20 @@ define( [ "./logger", "./eventmanager", "./observer",
           return _view;
         }
       },
+
+      /**
+       * Property: editorElement
+       *
+       * A reference to the editor HTML element associated to this TrackEvent.
+       * @malleable: No.
+       */
+      editorElement: {
+        enumerable: true,
+        configurable: false,
+        get: function(){
+          return _view.editorElement;
+        }
+      },
       /**
        * Property: dragging
        *

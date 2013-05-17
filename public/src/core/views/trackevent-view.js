@@ -12,6 +12,7 @@ define( [ "core/logger", "core/eventmanager", "util/dragndrop",
   return function( trackEvent, type, inputOptions ){
 
     var _element = LangUtils.domFragment( TRACKEVENT_LAYOUT, ".butter-track-event" ),
+        _editorElement,
         _type = type,
         _icon = document.getElementById( _type + "-icon" ),
         _start = inputOptions.start || 0,
@@ -135,6 +136,10 @@ define( [ "core/logger", "core/eventmanager", "util/dragndrop",
       element: {
         enumerable: true,
         get: function(){ return _element; }
+      },
+      editorElement: {
+        enumerable: true,
+        get: function(){ return _editorElement; }
       },
       start: {
         enumerable: true,

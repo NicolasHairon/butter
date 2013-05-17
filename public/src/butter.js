@@ -210,7 +210,7 @@ window.Butter = {
         track = track || _currentMedia.addTrack();
 
         if ( track.findOverlappingTrackEvent( start, end ) ) {
-          track = _currentMedia.insertTrackBefore( track );
+          track = _currentMedia.insertTrackAfter( track );
         }
 
         popcornOptions.start = start;

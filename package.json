@@ -95,9 +95,8 @@
     "newrelic": "0.9.20",
     "node-uuid": "1.4.0",
     "requirejs-middleware": "0.0.5",
-    "sequelize": "1.5.0",
-    "shelljs": "0.1.2",
-    "nestable": "git://github.com/dbushell/Nestable"
+    "sequelize": "1.6.0",
+    "shelljs": "0.1.2"
   },
   "optionalDependencies": {
     "node-statsd": "git://github.com/sivy/node-statsd.git#d6997fff",

@@ -199,6 +199,38 @@
         }
       };
 
+      this.insertTrackAfter = function( otherTrack, newTrack ) {
+        newTrack = ensureNewTrackIsTrack( newTrack );
+
+        if ( newTrack._media ) {
+          throw "Track already belongs to a Media object. Use `media.removeTrack` prior to this function.";
+        }
+
+        var idx = _orderedTracks.indexOf( otherTrack );
+
+        if ( idx > -1 ) {
+          // Give new track its index
+          newTrack.order = idx + 1;
+
+          // Insert new track after the other track
+          _orderedTracks.splice( idx + 1, 0, newTrack );
+
+          setupNewTrack( newTrack );
+
+          _this.dispatch( "trackadded", newTrack );
+
+          // Sort tracks after added one to update their order.
+          _this.sortTracks( idx + 1 );
+
+          addNewTrackTrackEvents( newTrack );
+
+          return newTrack;
+        }
+        else {
+          throw "inserTrackBefore must be passed a valid relative track.";
+        }
+      };
+
       this.getTrackById = function( id ) {
         for ( var i = 0, l = _tracks.length; i < l; ++i ) {
           if ( _tracks[ i ].id === id ) {
