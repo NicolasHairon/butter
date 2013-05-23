@@ -36,14 +36,20 @@ define([ "editor/editor", "editor/base-editor", "util/lang", "util/keys", "util/
           _container = document.createElement( "div" );
           _innerContainer = document.createElement( "div" );
           _innerSpan = document.createElement( "span" );
-          _innerDiv = document.createElement( "div" );
+          _innerDiv = document.createElement( "div" );*/
 
-          // innerDiv inside innerSpan is to allow zindex from layers to work properly.
-          // if you mess with this code, make sure to check for zindex issues.
-          _innerSpan.appendChild( _innerDiv );
-          _innerContainer.appendChild( _innerSpan );
-          _container.appendChild( _innerContainer );
-          _target.appendChild( _container );*/
+
+      /*_container.classList.add( "popcorn-text" );
+
+      // innerDiv inside innerSpan is to allow zindex from layers to work properly.
+      // if you mess with this code, make sure to check for zindex issues.
+      _innerSpan.appendChild( _innerDiv );
+      _innerContainer.appendChild( _innerSpan );
+      _container.appendChild( _innerContainer );
+
+      _innerContainer.classList.add( "text-inner-div" );
+      _innerContainer.style.fontStyle = "normal";
+      _innerContainer.style.fontWeight = "normal";*/
 
     function Time( parentNode ){
       var _timeBox = $(parentNode).find("input").get(0),
@@ -270,7 +276,9 @@ define([ "editor/editor", "editor/base-editor", "util/lang", "util/keys", "util/
       trackEvent = generateSafeChapterTrackEvent( popcornOptions, track );
 
       // Listen to updates on track event
+      trackEvent.listen( "trackeventadded", onTrackEventAdded );
       trackEvent.listen( "trackeventupdated", onTrackEventUpdated );
+      //trackEvent.listen( "trackeventdragstarted", onTrackEventDragStarted );
 
       // Save trackevent associated to editor element
       $( element ).data( "trackEvent", trackEvent );
@@ -281,6 +289,12 @@ define([ "editor/editor", "editor/base-editor", "util/lang", "util/keys", "util/
       return trackEvent;
     }
 
+    function onTrackEventDragStarted( e ) {
+      var trackEvent = e.target;
+    }
+    function onTrackEventAdded( e ) {
+      var trackEvent = e.target;
+    }
     function onTrackEventUpdated( e ) {
       var trackEvent = e.target;
       updateElement( trackEvent );
@@ -288,13 +302,14 @@ define([ "editor/editor", "editor/base-editor", "util/lang", "util/keys", "util/
 
     function onTrackEventRemoved( e ) {
       var trackEvent = e.data,
+          leclone = e.clone,
           editorElement;
 
       editorElement = getEditorElement( trackEvent );
       //    popcornOptions = trackEvent.popcornOptions;
 
       // If track event is beeing draged or resized, don't allow deletion
-      if( trackEvent.view.resizing || trackEvent.view.dragging ) {
+      if( trackEvent.selected ) {
         return;
       }
 
@@ -380,13 +395,13 @@ define([ "editor/editor", "editor/base-editor", "util/lang", "util/keys", "util/
       if( !_tocTrackEvent ) {
         _tocOptions.start = 0;
         _tocOptions.end = _media.duration;
-        _tocOptions.html = _tocDisplayList;
+        //_tocOptions.html = _tocDisplayList;
 
         // Create a toc track event
         _tocTrackEvent = _butter.generateSafeTrackEvent( "toc", _tocOptions );
       }
       
-      _tocOptions.html = _tocDisplayList;
+      //_tocOptions.html = _tocDisplayList;
       _tocTrackEvent.update( _tocOptions );
     }
 
@@ -399,7 +414,7 @@ define([ "editor/editor", "editor/base-editor", "util/lang", "util/keys", "util/
       if( _tocTrackEvent ) {
         _tocOptions.start = 0;
         _tocOptions.end = _media.duration;
-        _tocOptions.html = _tocDisplayList;
+        //_tocOptions.html = _tocDisplayList;
         _tocTrackEvent.update( _tocOptions );
       }
     }

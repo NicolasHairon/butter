@@ -35,11 +35,11 @@
           label: "Text",
           "default": "Table of contents"
         },
-        html: {
+        /*html: {
           label: "HTML",
           "default": undefined,
           hidden: true
-        },
+        },*/
         position: {
           elem: "select",
           options: [ "Custom", "Middle", "Bottom", "Top" ],
@@ -165,7 +165,7 @@
     _setup: function( options ) {
       var target = Popcorn.dom.find( options.target ),
           text = newlineToBreak( options.text ),
-          html = options.html,
+          //html = options.html,
           container = options._container = document.createElement( "div" ),
           innerContainer = document.createElement( "div" ),
           innerSpan = document.createElement( "span" ),
@@ -252,9 +252,9 @@
         }
 
           //innerDiv.innerHTML = text;
-        if( html ) {
+        /*if( html ) {
           innerDiv.appendChild( html );
-        }
+        }*/
 
       };
       fontSheet.href = "//fonts.googleapis.com/css?family=" + options.fontFamily.replace( /\s/g, "+" ) + ":400,700";

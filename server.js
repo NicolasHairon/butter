@@ -148,8 +148,8 @@ function writeEmbedShell( embedPath, url, data, callback ) {
 
 function writeEmbed( embedPath, url, data, callback ) {
   if( !writeEmbed.templateFn ) {
-    writeEmbed.templateFn = jade.compile( fs.readFileSync( path.resolve( __dirname, 'views/embed.jade' ), 'utf8' ),
-                                          { filename: 'embed.jade', pretty: true } );
+    writeEmbed.templateFn = jade.compile( fs.readFileSync( path.resolve( __dirname, 'views/embed-timesheets.jade' ), 'utf8' ),
+                                          { filename: 'embed-timesheets.jade', pretty: true } );
   }
   var sanitized = sanitizer.compressHTMLEntities( writeEmbed.templateFn( data ) );
   stores.publish.write( embedPath, sanitized, callback );
@@ -196,6 +196,8 @@ app.post( '/api/publish/:id',
         res.json( { error: 'error reading template file' }, 500 );
         return;
       }
+
+debugger;
 
       var headEndTagIndex,
           bodyEndTagIndex,

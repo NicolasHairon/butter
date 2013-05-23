@@ -315,7 +315,7 @@ define( [ "core/eventmanager", "core/media", "util/sanitizer" ],
         return;
       }
       // Save everything but the project id
-      var data = _this.data;
+      var data = _this.data, dataJSON;
       data.name = _name;
       data.template = _template;
       data.author = _author;
@@ -323,7 +323,8 @@ define( [ "core/eventmanager", "core/media", "util/sanitizer" ],
       data.thumbnail = _thumbnail;
       data.backupDate = Date.now();
       try {
-        __butterStorage.setItem( "butter-backup-project", JSON.stringify( data ) );
+        dataJSON = JSON.stringify( data );
+        __butterStorage.setItem( "butter-backup-project", dataJSON );
         _needsBackup = false;
       } catch ( e ) {
         // Deal with QUOTA_EXCEEDED_ERR when localStorage is full.
