@@ -148,12 +148,21 @@ function writeEmbedShell( embedPath, url, data, callback ) {
 
 function writeEmbed( embedPath, url, data, callback ) {
   if( !writeEmbed.templateFn ) {
-    writeEmbed.templateFn = jade.compile( fs.readFileSync( path.resolve( __dirname, 'views/embed-timesheets.jade' ), 'utf8' ),
-                                          { filename: 'embed-timesheets.jade', pretty: true } );
+    writeEmbed.templateFn = jade.compile( fs.readFileSync( path.resolve( __dirname, 'views/embed.jade' ), 'utf8' ),
+                                          { filename: 'embed.jade', pretty: true } );
   }
   var sanitized = sanitizer.compressHTMLEntities( writeEmbed.templateFn( data ) );
   stores.publish.write( embedPath, sanitized, callback );
 }
+
+/*function writeEmbedSmil( embedPath, url, data, callback ) {
+  if( !writeEmbedSmil.templateFn ) {
+    writeEmbedSmil.templateFn = jade.compile( fs.readFileSync( path.resolve( __dirname, 'views/timesheet.smil.jade' ), 'utf8' ),
+                                          { filename: 'timesheet.smil.jade', pretty: true } );
+  }
+  var sanitized = sanitizer.compressHTMLEntities( writeEmbedSmil.templateFn( data ) );
+  stores.publish.write( embedPath, sanitized, callback );
+}*/
 
 app.post( '/api/publish/:id',
   filter.isLoggedIn, filter.isStorageAvailable,
@@ -204,6 +213,7 @@ debugger;
           externalAssetURL = '',
           externalAssetsString = '',
           popcornString = '',
+          timesheetsString = '',
           currentMedia,
           currentTrack,
           currentTrackEvent,
@@ -240,6 +250,8 @@ debugger;
         }
         externalAssetsString += '\n';
       }
+
+      externalAssetsString += '';
 
       popcornString += '<script>';
 
@@ -333,6 +345,12 @@ debugger;
                     thumbnail: project.thumbnail
                   },
                   publishEmbedShell );
+
+      /*writeEmbedSmil( idBase36 + utils.constants().EMBED_SUFFIX, iframeUrl+'.smil',
+                  {
+                    id: id
+                  },
+                  publishEmbedShell );*/
 
     });
   });

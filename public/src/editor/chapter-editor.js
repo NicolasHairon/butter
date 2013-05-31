@@ -32,20 +32,24 @@ define([ "editor/editor", "editor/base-editor", "util/lang", "util/keys", "util/
 
           _count = 1;
 
-          /*_target = Popcorn.dom.find( _media.target );
+          /*_target = rootElement.querySelector( "#video-container" );
           _container = document.createElement( "div" );
           _innerContainer = document.createElement( "div" );
           _innerSpan = document.createElement( "span" );
           _innerDiv = document.createElement( "div" );*/
 
 
-      /*_container.classList.add( "popcorn-text" );
+      /*_container.style.position = "absolute";
+      _container.classList.add( "popcorn-text" );
+
+      _innerContainer.classList.add( "text-inner-div" );
 
       // innerDiv inside innerSpan is to allow zindex from layers to work properly.
       // if you mess with this code, make sure to check for zindex issues.
       _innerSpan.appendChild( _innerDiv );
       _innerContainer.appendChild( _innerSpan );
       _container.appendChild( _innerContainer );
+      _target.appendChild( _container );
 
       _innerContainer.classList.add( "text-inner-div" );
       _innerContainer.style.fontStyle = "normal";
@@ -244,8 +248,6 @@ define([ "editor/editor", "editor/base-editor", "util/lang", "util/keys", "util/
         _butter.deselectAllTrackEvents();
         trackEvent.selected = true;
 
-        _butter.defaultTarget.view.blink();
-
         return trackEvent;
     }
 
@@ -328,6 +330,8 @@ define([ "editor/editor", "editor/base-editor", "util/lang", "util/keys", "util/
           chapterEnd = start+chapterStep,
           levelTrack = $(subListItems).data("track");
 
+        //tocListItem.appendChild(childDisplayList);
+
         if( levelTrack === undefined ) {
           levelTrack = _media.insertTrackAfter( parentTrack );
           $(subListItems).data("track", levelTrack);
@@ -350,12 +354,17 @@ define([ "editor/editor", "editor/base-editor", "util/lang", "util/keys", "util/
 
           // Create list item to display
           tocListItemLink.setAttribute("href", "#");
+          tocListItemLink.setAttribute("data-start", chapterStart);//TimeUtils.toTimecode( chapterStart, 0 ));
+          tocListItemLink.setAttribute("data-end", chapterEnd);//TimeUtils.toTimecode( chapterEnd, 0 ));
+          tocListItemLink.setAttribute("class", "toc-item-link");
           //tocListItemLink.setAttribute("data-start", trackEvent.popcornOptions.start);
           tocListItemLink.innerHTML = text;
+
           $( tocListItemLink ).data("trackEvent", trackEvent);
 
           tocListItemLink.onclick = function(e) {
-              _media.currentTime = $(e.target).data("trackEvent").popcornOptions.start;
+            var thestart = $(e.target).data("trackEvent").popcornOptions.start;
+              _media.currentTime = thestart;
           }
 
           tocListItem.appendChild(tocListItemLink);
@@ -369,6 +378,9 @@ define([ "editor/editor", "editor/base-editor", "util/lang", "util/keys", "util/
           chapterEnd = chapterStart + chapterStep;
 
         });
+      }
+      else {
+        displayList.parentNode.removeChild( displayList );
       }
     }
 
@@ -395,16 +407,18 @@ define([ "editor/editor", "editor/base-editor", "util/lang", "util/keys", "util/
       if( !_tocTrackEvent ) {
         _tocOptions.start = 0;
         _tocOptions.end = _media.duration;
-        //_tocOptions.html = _tocDisplayList;
+        //_tocOptions.html = _tocDisplayList.innerHTML;
+        //_innerDiv.innerHTML = "hello";
 
         // Create a toc track event
         _tocTrackEvent = _butter.generateSafeTrackEvent( "toc", _tocOptions );
       }
       
-      //_tocOptions.html = _tocDisplayList;
-      _tocTrackEvent.update( _tocOptions );
-    }
+      //_tocOptions.html = _tocDisplayList.innerHTML;
+      //_tocTrackEvent.update( _tocOptions );
 
+
+    }
 
     function clearTocTrackEvent() {
       _tocDisplayList.innerHTML = "";
@@ -412,10 +426,16 @@ define([ "editor/editor", "editor/base-editor", "util/lang", "util/keys", "util/
 
     function updateTocDisplayList() {
       if( _tocTrackEvent ) {
-        _tocOptions.start = 0;
-        _tocOptions.end = _media.duration;
-        //_tocOptions.html = _tocDisplayList;
-        _tocTrackEvent.update( _tocOptions );
+        var updateOptions = {};
+        var jsonml = JsonML.fromHTML( _tocDisplayList );
+        updateOptions.jsonml = jsonml;
+        updateOptions.htmlToc = _tocDisplayList;
+
+        //var testOpt = _tocTrackEvent.popcornOptions;
+
+        //_innerDiv.appendChild( _tocDisplayList );
+        _tocTrackEvent.update( updateOptions );
+        //_tocTrackEvent.view.update( _tocOptions );
       }
     }
 
@@ -423,12 +443,9 @@ define([ "editor/editor", "editor/base-editor", "util/lang", "util/keys", "util/
       clearTocTrackEvent();
       createTocTrackEvent();
       addChapterTrackEvent( _editorTocDiv, _tocDisplayList, 1, 0, _butter.duration, _tocTrackEvent.track);
+
       updateTocDisplayList();
     }
-
-    /*function duplicateTocTrackEvent() {
-      _tocTrackEvent;
-    }*/
 
     function removeElement( element ) {
       var $element = $( element );
@@ -489,6 +506,12 @@ define([ "editor/editor", "editor/base-editor", "util/lang", "util/keys", "util/
 
             }
         });
+
+        $(".toc-item-link").on("click", function(event) {
+          _media.pause();
+          _media.currentTime = event.target.getAttribute("data-start");
+          _media.start();
+        })
 
         setup();
 

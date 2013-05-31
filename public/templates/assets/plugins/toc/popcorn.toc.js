@@ -35,11 +35,11 @@
           label: "Text",
           "default": "Table of contents"
         },
-        /*html: {
-          label: "HTML",
-          "default": undefined,
+        jsonml: {
+          //type: "text",
+          //"default": "",
           hidden: true
-        },*/
+        },
         position: {
           elem: "select",
           options: [ "Custom", "Middle", "Bottom", "Top" ],
@@ -165,11 +165,11 @@
     _setup: function( options ) {
       var target = Popcorn.dom.find( options.target ),
           text = newlineToBreak( options.text ),
-          //html = options.html,
           container = options._container = document.createElement( "div" ),
           innerContainer = document.createElement( "div" ),
           innerSpan = document.createElement( "span" ),
           innerDiv = document.createElement( "div" ),
+          innerUl = document.createElement( "ul" ),
           fontSheet,
           fontDecorations = options.fontDecorations || options._natives.manifest.options.fontDecorations[ "default" ],
           position = options.position || options._natives.manifest.options.position[ "default" ],
@@ -196,6 +196,7 @@
 
       // innerDiv inside innerSpan is to allow zindex from layers to work properly.
       // if you mess with this code, make sure to check for zindex issues.
+      innerDiv.appendChild( innerUl );
       innerSpan.appendChild( innerDiv );
       innerContainer.appendChild( innerSpan );
       container.appendChild( innerContainer );
@@ -251,10 +252,26 @@
           innerDiv.style.zIndex = +options.zindex;
         }
 
-          //innerDiv.innerHTML = text;
-        /*if( html ) {
-          innerDiv.appendChild( html );
-        }*/
+        if( options.htmlToc ) {
+          //var jsonml = JSON.parse( options.jsonml );
+          //var htmlToc = JsonML.toHTML( jsonml );
+          innerDiv.appendChild( options.htmlToc );
+        }
+        else if( options.jsonml ) {
+          var htmlFromJson = JsonML.toHTML( options.jsonml );
+          innerDiv.appendChild( htmlFromJson );
+
+          var links = document.querySelectorAll(".toc-item-link");
+          for( var i = 0; i < links.length; i++) {
+            var link = links[ i ];
+            link.onclick = function(event) {
+              event.preventDefault();
+              var start = event.target.getAttribute("data-start");
+              context.media.currentTime = start;
+            }
+          }
+
+        }
 
       };
       fontSheet.href = "//fonts.googleapis.com/css?family=" + options.fontFamily.replace( /\s/g, "+" ) + ":400,700";

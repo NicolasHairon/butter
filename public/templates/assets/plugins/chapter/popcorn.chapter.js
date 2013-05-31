@@ -13,7 +13,8 @@
 
   var DEFAULT_FONT_COLOR = "#000000",
       DEFAULT_SHADOW_COLOR = "#444444",
-      DEFAULT_BACKGROUND_COLOR = "#888888";
+      DEFAULT_BACKGROUND_COLOR = "#888888",
+      CHAPTER_DISPLAY_TIME = 5;
 
   function newlineToBreak( string ) {
     // Deal with both \r\n and \n
@@ -294,6 +295,9 @@
         options._transitionContainer.classList.add( "on" );
         options._transitionContainer.classList.remove( "off" );
       }
+
+
+
     },
 
     end: function( event, options ) {
