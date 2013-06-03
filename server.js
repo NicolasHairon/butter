@@ -20,7 +20,8 @@ var express = require('express'),
     stores = {},
     APP_HOSTNAME = config.hostname,
     WWW_ROOT = path.resolve( __dirname, config.dirs.wwwRoot ),
-    VALID_TEMPLATES = config.templates;
+    VALID_TEMPLATES = config.templates,
+    FAKE_EMAIL = "test@test.com";
 
 var templateConfigs = {};
 
@@ -168,7 +169,7 @@ app.post( '/api/publish/:id',
   filter.isLoggedIn, filter.isStorageAvailable,
   function publishRoute( req, res ) {
 
-  var email = req.session.email,
+  var email = FAKE_EMAIL,
       id = parseInt( req.params.id, 10 );
 
   if ( isNaN( id ) ) {
@@ -357,7 +358,7 @@ debugger;
 });
 
 app.get( '/dashboard', filter.isStorageAvailable, function( req, res ) {
-  var email = req.session.email;
+  var email = FAKE_EMAIL;
 
   if ( !email ) {
     res.render( 'dashboard-unauthorized.jade' );

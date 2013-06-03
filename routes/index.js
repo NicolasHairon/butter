@@ -6,14 +6,15 @@ module.exports = function routesCtor( app, Project, filter, sanitizer,
   var uuid = require( "node-uuid" ),
       // Keep track of whether this is production or development
       deploymentType = app.settings.env === "production" ? "production" : "development",
-      api = require( "./api" )( metrics, utils, stores );
+      api = require( "./api" )( metrics, utils, stores ),
+      FAKE_EMAIL = "test@test.com";
 
   app.get( '/healthcheck', api.healthcheck );
 
   app.put( "/api/image", filter.isImage, api.image );
 
   app.get( '/api/whoami', function( req, res ) {
-    var email = req.session.email;
+    var email = FAKE_EMAIL;
 
     if (email) {
       res.json({
@@ -86,10 +87,12 @@ module.exports = function routesCtor( app, Project, filter, sanitizer,
   });
 
   app.get( '/api/project/:id?',
-    filter.isLoggedIn, filter.isStorageAvailable,
+    filter.isLoggedIn,
+    filter.isStorageAvailable,
     function( req, res ) {
 
-    Project.find( { email: req.session.email, id: req.params.id }, function( err, doc ) {
+debugger;
+    Project.find( { id: req.params.id }, function( err, doc ) {
       if ( err ) {
         res.json( { error: err }, 500 );
         return;
@@ -151,7 +154,7 @@ module.exports = function routesCtor( app, Project, filter, sanitizer,
       return;
     }
 
-    Project.delete( { email: req.session.email, id: req.params.id }, function( err ) {
+    Project.delete( { email: FAKE_EMAIL, id: req.params.id }, function( err ) {
       if ( err ) {
         res.json( { error: 'project not found' }, 404 );
         return;
@@ -179,7 +182,7 @@ module.exports = function routesCtor( app, Project, filter, sanitizer,
 
     if ( req.body.id ) {
 
-      Project.update( { email: req.session.email, id: req.body.id, data: projectData },
+      Project.update( { email: FAKE_EMAIL, id: req.body.id, data: projectData },
                       function( err, doc ) {
         if ( err ) {
           res.json( { error: err }, 500 );
@@ -191,7 +194,7 @@ module.exports = function routesCtor( app, Project, filter, sanitizer,
       });
     } else {
 
-      Project.create( { email: req.session.email, data: projectData }, function( err, doc ) {
+      Project.create( { email: FAKE_EMAIL, data: projectData }, function( err, doc ) {
         if ( err ) {
           res.json( { error: err }, 500 );
           metrics.increment( 'error.save' );

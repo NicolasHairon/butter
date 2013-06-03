@@ -10,7 +10,7 @@ define([ "dialog/dialog", "util/lang", "text!layouts/header.html", "ui/user-data
     var _this = this,
         _userData = new UserData( butter, options ),
         _rootElement = Lang.domFragment( HEADER_TEMPLATE, ".butter-header" ),
-        _webmakerNavBar = _rootElement.querySelector( "#webmaker-nav" ),
+        //_webmakerNavBar = _rootElement.querySelector( "#webmaker-nav" ),
         _saveButton = _rootElement.querySelector( ".butter-save-btn" ),
         _projectTitle = _rootElement.querySelector( ".butter-project-title" ),
         _projectName = _projectTitle.querySelector( ".butter-project-name" ),
@@ -20,7 +20,7 @@ define([ "dialog/dialog", "util/lang", "text!layouts/header.html", "ui/user-data
         _projectMenu = _rootElement.querySelector( ".butter-project-menu" ),
         _projectMenuControl = _rootElement.querySelector( ".butter-project-menu-control" ),
         _projectMenuList = _projectMenu.querySelector( ".butter-btn-menu" ),
-        _tabzilla = _rootElement.querySelector( "#tabzilla" ),
+        //_tabzilla = _rootElement.querySelector( "#tabzilla" ),
         _noProjectNameToolTip,
         _projectTitlePlaceHolderText = _projectName.innerHTML,
         _webmakerNav,
@@ -38,19 +38,21 @@ define([ "dialog/dialog", "util/lang", "text!layouts/header.html", "ui/user-data
 
     ToolTip.apply( _projectTitle );
 
-    _tabzilla.addEventListener( "click", function() {
+    /*_tabzilla.addEventListener( "click", function() {
       document.body.classList.toggle( "tabzilla-open" );
-    }, false );
+    }, false );*/
 
     function saveProject() {
-      if ( !butter.cornfield.authenticated() ) {
+      /*if ( !butter.cornfield.authenticated() ) {
         _userData.authenticationRequired();
       }
-      else if ( butter.project.isSaved ) {
+      else */if ( butter.project.isSaved ) {
         return;
       }
       else if ( checkProjectName( butter.project.name ) ) {
-        _userData.authenticationRequired( prepare, nameError );
+        //_userData.authenticationRequired( prepare, nameError );
+        // Go on without authentication
+        prepare();
         return;
       }
       else {
@@ -209,7 +211,7 @@ define([ "dialog/dialog", "util/lang", "text!layouts/header.html", "ui/user-data
       dialog.open();
     }
 
-    _webmakerNav = new WebmakerBar({
+    /*_webmakerNav = new WebmakerBar({
       container: _webmakerNavBar,
       onLogin: _userData.authenticationRequired,
       onLogout: _userData.logout,
@@ -223,7 +225,7 @@ define([ "dialog/dialog", "util/lang", "text!layouts/header.html", "ui/user-data
 
     butter.listen( "autologinsucceeded", onLogin, false );
     butter.listen( "authenticated", onLogin, false );
-    butter.listen( "logout", _webmakerNav.views.logout, false );
+    butter.listen( "logout", _webmakerNav.views.logout, false );*/
 
     function destroyToolTip() {
       if ( _noProjectNameToolTip && !_noProjectNameToolTip.destroyed ) {
@@ -299,7 +301,8 @@ define([ "dialog/dialog", "util/lang", "text!layouts/header.html", "ui/user-data
       _projectName.textContent = node.value || _projectTitlePlaceHolderText;
       if( checkProjectName( _projectName.textContent ) ) {
         butter.project.name = _projectName.textContent;
-        _userData.authenticationRequired( prepare );
+        //_userData.authenticationRequired( prepare );
+        prepare();
       } else {
         nameError();
         toggleProjectNameListeners( true );
