@@ -507,11 +507,11 @@ define([ "editor/editor", "editor/base-editor", "util/lang", "util/keys", "util/
             }
         });
 
-        $(".toc-item-link").on("click", function(event) {
+        /*$(".toc-item-link").on("click", function(event) {
           _media.pause();
           _media.currentTime = event.target.getAttribute("data-start");
           _media.start();
-        })
+        })*/
 
         setup();
 

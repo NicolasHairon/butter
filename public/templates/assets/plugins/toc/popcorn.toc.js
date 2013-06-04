@@ -175,10 +175,10 @@
           position = options.position || options._natives.manifest.options.position[ "default" ],
           alignment = options.alignment,
           transition = options.transition || options._natives.manifest.options.transition[ "default" ],
-          link,
+          //link,
           shadowColor = options.shadowColor || DEFAULT_SHADOW_COLOR,
           backgroundColor = options.backgroundColor || DEFAULT_BACKGROUND_COLOR,
-          context = this;
+          popcorn = context = this;
 
       if ( !target ) {
         target = this.media.parentNode;
@@ -264,10 +264,15 @@
           var links = document.querySelectorAll(".toc-item-link");
           for( var i = 0; i < links.length; i++) {
             var link = links[ i ];
-            link.onclick = function(event) {
-              event.preventDefault();
-              var start = event.target.getAttribute("data-start");
-              context.media.currentTime = start;
+            link.onclick = function(e) {
+              e.preventDefault();
+              var start = e.target.getAttribute("data-start");
+              if( context.paused() ) {
+                context.pause( start );
+              }
+              else {
+                context.play( start );
+              }
             }
           }
 
