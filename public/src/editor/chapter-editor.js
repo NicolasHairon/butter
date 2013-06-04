@@ -182,8 +182,6 @@ define([ "editor/editor", "editor/base-editor", "util/lang", "util/keys", "util/
         popcornOptions.end   = TimeUtils.toSeconds( $element.find(".toc-item-time-end input").val() );
         popcornOptions.text  = $element.find(".toc-item-content:first").text();
         popcornOptions.level = ($element.parentsUntil("#toc-ol").length+1)/2;
-        //popcornOptions.element = element;
-
         trackEvent.update( popcornOptions );
       }
     }
@@ -357,7 +355,6 @@ define([ "editor/editor", "editor/base-editor", "util/lang", "util/keys", "util/
           tocListItemLink.setAttribute("data-start", chapterStart);//TimeUtils.toTimecode( chapterStart, 0 ));
           tocListItemLink.setAttribute("data-end", chapterEnd);//TimeUtils.toTimecode( chapterEnd, 0 ));
           tocListItemLink.setAttribute("class", "toc-item-link");
-          //tocListItemLink.setAttribute("data-start", trackEvent.popcornOptions.start);
           tocListItemLink.innerHTML = text;
 
           $( tocListItemLink ).data("trackEvent", trackEvent);
@@ -407,17 +404,9 @@ define([ "editor/editor", "editor/base-editor", "util/lang", "util/keys", "util/
       if( !_tocTrackEvent ) {
         _tocOptions.start = 0;
         _tocOptions.end = _media.duration;
-        //_tocOptions.html = _tocDisplayList.innerHTML;
-        //_innerDiv.innerHTML = "hello";
-
         // Create a toc track event
         _tocTrackEvent = _butter.generateSafeTrackEvent( "toc", _tocOptions );
       }
-      
-      //_tocOptions.html = _tocDisplayList.innerHTML;
-      //_tocTrackEvent.update( _tocOptions );
-
-
     }
 
     function clearTocTrackEvent() {
