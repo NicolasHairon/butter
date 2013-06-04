@@ -20,6 +20,16 @@
     return string.replace( /\r?\n/gm, "<br>" );
   }
 
+  function reconstituteHTML( s ) {
+    return s.replace( /&#34;/g, '"' )
+            .replace( /&#39;/g, "'" )
+            .replace( /&quot;/g, '"' )
+            .replace( /&apos;/g, "'" )
+            .replace( /&lt;/g, '<' )
+            .replace( /&gt;/g, '>' )
+            .replace( /&amp;/g, '&' );
+  }
+
   Popcorn.plugin( "toc", {
 
     manifest: {
@@ -264,6 +274,7 @@
           var links = document.querySelectorAll(".toc-item-link");
           for( var i = 0; i < links.length; i++) {
             var link = links[ i ];
+            link.innerHTML = reconstituteHTML( link.innerHTML );
             link.onclick = function(e) {
               e.preventDefault();
               var start = e.target.getAttribute("data-start");

@@ -420,11 +420,7 @@ define([ "editor/editor", "editor/base-editor", "util/lang", "util/keys", "util/
         updateOptions.jsonml = jsonml;
         updateOptions.htmlToc = _tocDisplayList;
 
-        //var testOpt = _tocTrackEvent.popcornOptions;
-
-        //_innerDiv.appendChild( _tocDisplayList );
         _tocTrackEvent.update( updateOptions );
-        //_tocTrackEvent.view.update( _tocOptions );
       }
     }
 
@@ -468,7 +464,6 @@ define([ "editor/editor", "editor/base-editor", "util/lang", "util/keys", "util/
         }
     }*/
 
-
     Editor.BaseEditor.extend( this, butter, rootElement, {
       open: function() {
         _butter = butter;
@@ -495,12 +490,6 @@ define([ "editor/editor", "editor/base-editor", "util/lang", "util/keys", "util/
 
             }
         });
-
-        /*$(".toc-item-link").on("click", function(event) {
-          _media.pause();
-          _media.currentTime = event.target.getAttribute("data-start");
-          _media.start();
-        })*/
 
         setup();
 
