@@ -147,7 +147,7 @@ border: 1px solid #eee;
 .dd3-handle:hover { background: #ddd; }
 
 
-.dd3-delete { position: absolute; margin: 0; right: 0; top: 0; cursor: pointer; width: 30px; text-indent: 100%; white-space: nowrap; overflow: hidden;
+.dd3-delete { position: absolute; margin: 0; right: 0; top: 0; cursor: pointer; width: 30px; height: inherit; text-indent: 100%; white-space: nowrap; overflow: hidden;
     border: 1px solid #aaa;
     background: #ddd;
     background: -webkit-linear-gradient(top, #ddd 0%, #bbb 100%);
@@ -159,30 +159,35 @@ border: 1px solid #eee;
 .dd3-delete:before { content: 'x'; display: block; position: absolute; left: 0; top: 3px; width: 100%; text-align: center; text-indent: 0; color: #fff; font-size: 20px; font-weight: normal; }
 .dd3-delete:hover { background: #ddd; }
 
-.toc-item-time { position: absolute; margin: 0; top: 0; width: 50px; height: 28px;
-    border: 1px solid #aaa;
-    border-right: 0;
-    background: transparent;
-    border-top-left-radius: 0;
-    border-bottom-left-radius: 0;
+.toc-item-time {
+  position: absolute;
+  margin: 0;
+  top: 0;
+  width: 50px;
+  height: 30px;
+  border: 1px solid #ddd;
+  border-right: 0;
+  background: transparent;
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
 }
 
 .toc-item-time-start {
-right: 80px;
+  right: 80px;
 }
 
 
 .toc-item-time-end {
-right: 30px;
+  right: 30px;
 
 }
 .toc-item-time input {
-    margin: 0;
+  margin: 0;
   background: transparent;
   color: #555555;
-  border: none;
+  border: none!important;
   width: 50px;
-  height: 28px!important;
+  height: 34px;
   text-align: center;
   font-size: 10px;
   font-family: menlo, monospace;

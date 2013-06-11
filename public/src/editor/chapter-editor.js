@@ -8,13 +8,12 @@ define([ "editor/editor", "editor/base-editor", "util/lang", "util/keys", "util/
 
     Editor.register( "chapter-editor", EDITOR_LAYOUT, function( rootElement, butter ) {
       var _editorContainer = rootElement.querySelector( ".editor-container" ),
-          _editorTocDiv = rootElement.querySelector( "#toc-div" ),
+          _tocEditorDiv = rootElement.querySelector( "#toc-div" ),
           _addEditorTocItemBtn = _editorContainer.querySelector( ".butter-new-entry-link" ),
           _clearBtn = _editorContainer.querySelector( ".butter-clear-link" ),
-          //_duplicateBtn = _editorContainer.querySelector( ".butter-duplicate-toc-link" ),
           _renderBtn = _editorContainer.querySelector( ".butter-render-link" ),
-          _editorTocList = _editorContainer.querySelector( "#toc-ol" ),
-          _TOCITEM = LangUtils.domFragment( EDITOR_LAYOUT, ".toc-item" ),
+          _editorList = _editorContainer.querySelector( "#toc-ol" ),
+          EDITOR_TOC_ITEM = LangUtils.domFragment( EDITOR_LAYOUT, ".toc-item" ),
 
           _butter = butter,
           _media = butter.currentMedia,
@@ -24,37 +23,9 @@ define([ "editor/editor", "editor/base-editor", "util/lang", "util/keys", "util/
           _tocOptions = {},
           _tocDisplayList = document.createElement( "ul" ),
 
-          /*_target,
-          _container,
-          _innerContainer,
-          _innerSpan,
-          _innerDiv,*/
-
-          _count = 1;
-          _timelineLoaded = false;
-
-          /*_target = rootElement.querySelector( "#video-container" );
-          _container = document.createElement( "div" );
-          _innerContainer = document.createElement( "div" );
-          _innerSpan = document.createElement( "span" );
-          _innerDiv = document.createElement( "div" );*/
-
-
-      /*_container.style.position = "absolute";
-      _container.classList.add( "popcorn-text" );
-
-      _innerContainer.classList.add( "text-inner-div" );
-
-      // innerDiv inside innerSpan is to allow zindex from layers to work properly.
-      // if you mess with this code, make sure to check for zindex issues.
-      _innerSpan.appendChild( _innerDiv );
-      _innerContainer.appendChild( _innerSpan );
-      _container.appendChild( _innerContainer );
-      _target.appendChild( _container );
-
-      _innerContainer.classList.add( "text-inner-div" );
-      _innerContainer.style.fontStyle = "normal";
-      _innerContainer.style.fontWeight = "normal";*/
+          _count = 1,
+          _timelineLoaded = false,
+          _rendering = false;
 
     setup();
 
@@ -102,7 +73,7 @@ define([ "editor/editor", "editor/base-editor", "util/lang", "util/keys", "util/
 
 
     function addEditorTocItem() {
-      var newTocItem = _TOCITEM.cloneNode( true ),
+      var newTocItem = EDITOR_TOC_ITEM.cloneNode( true ),
         dragBtn = newTocItem.querySelector( ".toc-item-handle" ),
         contentDiv = newTocItem.querySelector( ".toc-item-content" ),
         deleteBtn = newTocItem.querySelector( ".toc-item-delete" );
@@ -112,45 +83,41 @@ define([ "editor/editor", "editor/base-editor", "util/lang", "util/keys", "util/
             trackEvent = $tocItem.data("trackEvent");
 
         if( trackEvent !== undefined ) {
-          trackEvent.track.removeTrackEvent(trackEvent);
+          trackEvent.track.removeTrackEvent( trackEvent );
         }
 
         $tocItem.removeData("trackEvent");
         $tocItem.remove();
       }, false );
 
-      _editorTocDiv.classList.add("visible");
+      _tocEditorDiv.classList.add("visible");
       _clearBtn.classList.add("visible");
-      //_duplicateBtn.classList.add("visible");
-
-      _editorTocList.appendChild( newTocItem );
+      _editorList.appendChild( newTocItem );
 
       $(newTocItem).find( ".dd3-content" ).first().text(_count);
       _count++;
-
     }
 
-    function clearTocList() {
-      var toc = document.getElementById("toc-ol");
+    function cleareditorList() {
+      var editorList = document.getElementById("toc-ol");
 
       // Recursively remove track events
-      removeChapterTrackEvent( _editorTocDiv );
+      removeChapterTrackEvent( _tocEditorDiv );
 
-      toc.innerHTML = "";
-      _editorTocDiv.classList.remove("visible");
+      editorList.innerHTML = '';
+      _tocEditorDiv.classList.remove("visible");
       _clearBtn.classList.remove("visible");
-      //_duplicateBtn.classList.remove("visible");
-
     }
 
     /*
-     * Method getEditorElement
+     * Method getEditorTocItem
      *
      * @param {Object} trackEvent: The trackEvent object from which we try to find related editor element.
      */
-    function getEditorElement( trackEvent ) {
+    function getEditorTocItem( trackEvent ) {
       var element,
-          editorTocItems = $(_editorTocDiv).find("li");
+          editorTocItems = $(_tocEditorDiv).find("li");
+
       editorTocItems.each(function() {
         var itemTrackEvent = $(this).data("trackEvent");
 
@@ -163,7 +130,7 @@ define([ "editor/editor", "editor/base-editor", "util/lang", "util/keys", "util/
     }
 
     function updateEditorTocItem( trackEvent ) {
-      var editorElement = getEditorElement( trackEvent );
+      var editorElement = getEditorTocItem( trackEvent );
       if( editorElement ) {
         var $element = $(editorElement),
             popcornOptions = trackEvent.popcornOptions;
@@ -171,7 +138,11 @@ define([ "editor/editor", "editor/base-editor", "util/lang", "util/keys", "util/
         $element.find( ".toc-item-time-start input" ).first().val( TimeUtils.toTimecode(popcornOptions.start) ) ;
         $element.find( ".toc-item-time-end input" ).first().val( TimeUtils.toTimecode(popcornOptions.end) ) ;
       }
-      updateTocDisplayList();
+      if( !_rendering ) {
+        clearTocDisplayList();
+        updateTocDisplayList();
+        updateTocTrackEvent();
+      }
     }
 
     function updateTrackEvent( element ) {
@@ -185,10 +156,59 @@ define([ "editor/editor", "editor/base-editor", "util/lang", "util/keys", "util/
         popcornOptions.start = TimeUtils.toSeconds( $element.find(".toc-item-time-start input").val() );
         popcornOptions.end   = TimeUtils.toSeconds( $element.find(".toc-item-time-end input").val() );
         popcornOptions.text  = $element.find(".toc-item-content:first").text();
-        popcornOptions.level = ($element.parentsUntil("#toc-ol").length+1)/2;
+        popcornOptions.level = ($element.parentsUntil("#toc-ol").length)/2+1;
         trackEvent.update( popcornOptions );
       }
-      updateTocDisplayList();
+      if( !_rendering ) {
+        clearTocDisplayList();
+        updateTocDisplayList();
+        updateTocTrackEvent();
+      }
+    }
+
+    function updateTocDisplayList(editorList, displayList) {
+      if(!editorList) { editorList = _tocEditorDiv; }
+      if(!displayList) { displayList = _tocDisplayList; }
+
+      var subListItems = $(editorList).find("> ol > li");
+
+      if( subListItems.length>0 ) {
+        subListItems.each(function() {
+          var text = $(this).find( ".dd3-content" ).first().text(),
+              trackEvent = $(this).data("trackEvent"),
+              childDisplayList = document.createElement( "ul" ),
+              tocListItem = document.createElement( "li" ),
+              tocListItemLink = document.createElement( "a" );
+
+          // Create list item to display
+          tocListItemLink.setAttribute("href", "#");
+          tocListItemLink.setAttribute("data-start", trackEvent.popcornOptions.start);
+          tocListItemLink.setAttribute("data-end", trackEvent.popcornOptions.end);
+          tocListItemLink.setAttribute("data-trackevent-id", trackEvent.id);
+          tocListItemLink.setAttribute("class", "toc-item-link");
+          tocListItemLink.innerHTML = text;
+
+          $( tocListItemLink ).removeData("trackEvent");
+          $( tocListItemLink ).data("trackEvent", trackEvent);
+
+          /*tocListItemLink.removeEventListener("click");
+          tocListItemLink.addEventListener("click", function(e) {
+            var thestart = $(e.target).data("trackEvent").popcornOptions.start;
+              _media.currentTime = thestart;
+          });*/
+
+          tocListItem.appendChild(tocListItemLink);
+          tocListItem.appendChild(childDisplayList);
+
+          displayList.appendChild(tocListItem);
+
+          updateTocDisplayList(this, childDisplayList);
+
+        });
+      }
+      else {
+        displayList.parentNode.removeChild( displayList );
+      }
     }
 
     function generateSafeChapterTrackEvent( popcornOptions, track ) {
@@ -236,7 +256,6 @@ define([ "editor/editor", "editor/base-editor", "util/lang", "util/keys", "util/
           overlapTrackEvent.update( overlapPopcornOptions );
           overlapTrackEvent.view.update( overlapPopcornOptions );
           updateEditorTocItem( overlapTrackEvent );
-          //track = _media.insertTrackAfter( track );
         }
 
         popcornOptions.start = start;
@@ -254,7 +273,7 @@ define([ "editor/editor", "editor/base-editor", "util/lang", "util/keys", "util/
         return trackEvent;
     }
 
-    function addTrackEvent( element, start, end, text, level, track ) {
+    function createTrackEvent( element, start, end, text, level, track ) {
       var popcornOptions = {},
           $element = $(element),
           trackEvent,
@@ -265,25 +284,15 @@ define([ "editor/editor", "editor/base-editor", "util/lang", "util/keys", "util/
       popcornOptions.end   = end;
       popcornOptions.text  = text;
       popcornOptions.level = level;
-      //popcornOptions.element = element;
 
       startBox = new Time($element.find(".toc-item-time-start"));
       endBox = new Time($element.find(".toc-item-time-end"));
-      
-
-
-      //trackEvent = _butter.generateSafeTrackEvent( "chapter", popcornOptions, track );
-      /*trackEvent = track.addTrackEvent({
-        popcornOptions: popcornOptions,
-        type: "chapter"
-      });*/
 
       trackEvent = generateSafeChapterTrackEvent( popcornOptions, track );
 
       // Listen to updates on track event
       trackEvent.listen( "trackeventadded", onTrackEventAdded );
       trackEvent.listen( "trackeventupdated", onTrackEventUpdated );
-      //trackEvent.listen( "trackeventdragstarted", onTrackEventDragStarted );
 
       // Save trackevent associated to editor element
       $( element ).data( "trackEvent", trackEvent );
@@ -297,9 +306,11 @@ define([ "editor/editor", "editor/base-editor", "util/lang", "util/keys", "util/
     function onTrackEventDragStarted( e ) {
       var trackEvent = e.target;
     }
+
     function onTrackEventAdded( e ) {
       var trackEvent = e.target;
     }
+
     function onTrackEventUpdated( e ) {
       var trackEvent = e.target;
       updateEditorTocItem( trackEvent );
@@ -307,11 +318,9 @@ define([ "editor/editor", "editor/base-editor", "util/lang", "util/keys", "util/
 
     function onMediaTrackEventRemoved( e ) {
       var trackEvent = e.data,
-          leclone = e.clone,
           editorElement;
 
-      editorElement = getEditorElement( trackEvent );
-      //    popcornOptions = trackEvent.popcornOptions;
+      editorElement = getEditorTocItem( trackEvent );
 
       // If track event is beeing draged or resized, don't allow deletion
       if( trackEvent.selected ) {
@@ -324,16 +333,14 @@ define([ "editor/editor", "editor/base-editor", "util/lang", "util/keys", "util/
       }
     }
 
-    function addChapterTrackEvent(rootElementList, displayList, level, start, duration, parentTrack) {
-      var subListItems = $(rootElementList).find("> ol > li");
+    function createChapterTrack(editorList, level, start, duration, parentTrack) {
+      var subListItems = $(editorList).find("> ol > li");
 
       if( subListItems.length>0 ) {
         var chapterStart = start,
           chapterStep = duration/subListItems.length,
           chapterEnd = start+chapterStep,
           levelTrack = $(subListItems).data("track");
-
-        //tocListItem.appendChild(childDisplayList);
 
         if( levelTrack === undefined ) {
           levelTrack = _media.insertTrackAfter( parentTrack );
@@ -342,53 +349,28 @@ define([ "editor/editor", "editor/base-editor", "util/lang", "util/keys", "util/
 
         subListItems.each(function() {
           var text = $(this).find( ".dd3-content" ).first().text(),
-              trackEvent = $(this).data("trackEvent"),
-              prevTrackEvent,
-              childDisplayList = document.createElement( "ul" ),
-              tocListItem = document.createElement( "li" ),
-              tocListItemLink = document.createElement( "a" );
+              trackEvent = $(this).data("trackEvent");
 
-          // Add track event in the timeline
+          // If not already in the timeline, create a chapter track event
           if( trackEvent === undefined ) {
-            trackEvent = addTrackEvent( this, chapterStart, chapterEnd, text, level, levelTrack );
+            trackEvent = createTrackEvent( this, chapterStart, chapterEnd, text, level, levelTrack );
+          }
+          // Else, update existing track event with latest data from toc editor item
+          else {
+            updateTrackEvent( this );
           }
 
-          prevTrackEvent = trackEvent;
-
-          // Create list item to display
-          tocListItemLink.setAttribute("href", "#");
-          tocListItemLink.setAttribute("data-start", chapterStart);//TimeUtils.toTimecode( chapterStart, 0 ));
-          tocListItemLink.setAttribute("data-end", chapterEnd);//TimeUtils.toTimecode( chapterEnd, 0 ));
-          tocListItemLink.setAttribute("data-trackevent-id", trackEvent.id);
-          tocListItemLink.setAttribute("class", "toc-item-link");
-          tocListItemLink.innerHTML = text;
-
-          $( tocListItemLink ).data("trackEvent", trackEvent);
-
-          tocListItemLink.onclick = function(e) {
-            var thestart = $(e.target).data("trackEvent").popcornOptions.start;
-              _media.currentTime = thestart;
-          }
-
-          tocListItem.appendChild(tocListItemLink);
-          tocListItem.appendChild(childDisplayList);
-
-          displayList.appendChild(tocListItem);
-
-          addChapterTrackEvent(this, childDisplayList, level+1, chapterStart, chapterStep, levelTrack);
+          createChapterTrack(this, level+1, chapterStart, chapterStep, levelTrack);
 
           chapterStart = chapterEnd;
           chapterEnd = chapterStart + chapterStep;
 
         });
       }
-      else {
-        displayList.parentNode.removeChild( displayList );
-      }
     }
 
-    function removeChapterTrackEvent(rootElementList) {
-      var tocList = $(rootElementList).find("> ol > li");
+    function removeChapterTrackEvent(editorList) {
+      var tocList = $(editorList).find("> ol > li");
 
       if( tocList.length>0 ) {
         tocList.each(function() {
@@ -415,27 +397,29 @@ define([ "editor/editor", "editor/base-editor", "util/lang", "util/keys", "util/
       }
     }
 
-    function clearTocTrackEvent() {
-      _tocDisplayList.innerHTML = "";
+    function clearTocDisplayList() {
+      _tocDisplayList.innerHTML = '';
     }
 
-    function updateTocDisplayList() {
+    function updateTocTrackEvent() {
       if( _tocTrackEvent ) {
         var updateOptions = {};
         var jsonml = JsonML.fromHTML( _tocDisplayList );
         updateOptions.jsonml = jsonml;
-        updateOptions.htmlToc = _tocDisplayList;
+        //updateOptions.htmlToc = _tocDisplayList;
 
         _tocTrackEvent.update( updateOptions );
       }
     }
 
     function renderTimeline() {
-      clearTocTrackEvent();
+      _rendering = true;
+      clearTocDisplayList();
       createTocTrackEvent();
-      addChapterTrackEvent( _editorTocDiv, _tocDisplayList, 1, 0, _butter.duration, _tocTrackEvent.track);
-
-      updateTocDisplayList();
+      createChapterTrack( _tocEditorDiv, 1, 0, _butter.duration, _tocTrackEvent.track);
+      updateTocDisplayList( _tocEditorDiv, _tocDisplayList );
+      updateTocTrackEvent();
+      _rendering = false;
     }
 
     function removeElement( element ) {
@@ -443,22 +427,22 @@ define([ "editor/editor", "editor/base-editor", "util/lang", "util/keys", "util/
       $element.removeData("trackEvent");
       $element.remove();
 
-      if($(_editorTocList).children().length==0) {
-        _editorTocDiv.classList.remove("visible");
+      if($(_editorList).children().length==0) {
+        _tocEditorDiv.classList.remove("visible");
         _clearBtn.classList.remove("visible");
       }
     }
 
     function setup() {
       _addEditorTocItemBtn.addEventListener( "click", addEditorTocItem, false);
-      _clearBtn.addEventListener( "click", clearTocList, false);
+      _clearBtn.addEventListener( "click", cleareditorList, false);
       //_duplicateBtn.addEventListener( "click", duplicateTocTrackEvent, false);
       _renderBtn.addEventListener( "click", renderTimeline, false );
 
       _media.listen( "trackeventremoved", onMediaTrackEventRemoved );
 
       if( !_timelineLoaded ) {
-        loadChapterTrackEvents();
+        loadTracks();
       }
     }
 
@@ -474,7 +458,7 @@ define([ "editor/editor", "editor/base-editor", "util/lang", "util/keys", "util/
         }
     }*/
 
-    function loadChapterTrackEvents() {
+    function loadTracks() {
       var tracks = _media.tracks;
 
       for(var i = 0; i < _media.tracks.length; i++) {
@@ -499,12 +483,12 @@ define([ "editor/editor", "editor/base-editor", "util/lang", "util/keys", "util/
       var jsonList = _tocTrackEvent.popcornOptions.jsonml;
 
       // Load editor to list
-      loadEditorTocSubList( _editorTocList, jsonList );
+      loadChapterTrack( _editorList, jsonList );
 
       _timelineLoaded = true;
     }
 
-    function loadEditorTocSubList( parentEditorList, jsonList ) {
+    function loadChapterTrack( parentEditorList, jsonList ) {
       for(var k = 0; k < jsonList.length; k++) {
         var item = jsonList[k];
 
@@ -517,7 +501,7 @@ define([ "editor/editor", "editor/base-editor", "util/lang", "util/keys", "util/
 
         // Create editor toc item
         if( tocItemLink[0] == "A") {
-          var editorTocItem = _TOCITEM.cloneNode( true ),
+          var editorTocItem = EDITOR_TOC_ITEM.cloneNode( true ),
             $editorTocItem = $(editorTocItem),
             dragBtn = editorTocItem.querySelector( ".toc-item-handle" ),
             contentDiv = editorTocItem.querySelector( ".toc-item-content" ),
@@ -543,7 +527,7 @@ define([ "editor/editor", "editor/base-editor", "util/lang", "util/keys", "util/
             $editorTocItem.remove();
           }, false );
 
-          _editorTocDiv.classList.add("visible");
+          _tocEditorDiv.classList.add("visible");
           _clearBtn.classList.add("visible");
 
           var label = trackEvent.popcornOptions.text;
@@ -568,7 +552,7 @@ define([ "editor/editor", "editor/base-editor", "util/lang", "util/keys", "util/
             var childEditorList = document.createElement( "ol" );
             editorTocItem.appendChild( childEditorList );
 
-            loadEditorTocSubList( childEditorList, tocItemSubList );
+            loadChapterTrack( childEditorList, tocItemSubList );
           }
 
         }

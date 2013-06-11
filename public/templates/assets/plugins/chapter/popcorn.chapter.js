@@ -165,6 +165,7 @@
     _setup: function( options ) {
       var target,
           text = newlineToBreak( options.text ),
+          level = options.level,
           container = options._container = document.createElement( "div" ),
           innerContainer = document.createElement( "div" ),
           innerSpan = document.createElement( "span" ),
@@ -226,6 +227,13 @@
         innerDiv.style.textShadow = "0 1px 5px " + shadowColor + ", 0 1px 10px " + shadowColor;
       }
 
+      if( level==2 ) {
+        innerDiv.style.marginTop = options.fontSize+"%";
+      }
+      else if( level==3 ) {
+        innerDiv.style.marginTop = 2*options.fontSize+"%";
+      }
+
       // Escape HTML text if requested
       text = !!options.escape ? escapeHTML( options.text ) : options.text;
 
@@ -242,7 +250,7 @@
 
       fontSheet.onload = function () {
         innerContainer.style.fontFamily = options.fontFamily;
-        innerContainer.style.fontSize = options.fontSize + "%";
+        innerContainer.style.fontSize = (4-level)/2*options.fontSize + "%";
         if ( position === "custom" ) {
           container.classList.add( "text-custom" );
           innerContainer.classList.add( alignment );
@@ -295,9 +303,6 @@
         options._transitionContainer.classList.add( "on" );
         options._transitionContainer.classList.remove( "off" );
       }
-
-
-
     },
 
     end: function( event, options ) {

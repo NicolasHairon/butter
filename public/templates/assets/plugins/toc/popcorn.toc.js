@@ -262,12 +262,6 @@
           innerDiv.style.zIndex = +options.zindex;
         }
 
-        /*if( options.htmlToc ) {
-          //var jsonml = JSON.parse( options.jsonml );
-          //var htmlToc = JsonML.toHTML( jsonml );
-          innerDiv.appendChild( options.htmlToc );
-        }
-        else */
         if( options.jsonml ) {
           var htmlFromJson = JsonML.toHTML( options.jsonml );
           innerDiv.appendChild( htmlFromJson );
