@@ -24,8 +24,9 @@ define([ "editor/editor", "editor/base-editor", "util/lang", "util/keys", "util/
           _tocDisplayList = document.createElement( "ul" ),
 
           _count = 1,
-          _timelineLoaded = false,
-          _rendering = false;
+          _loaded = false,
+          _rendering = false,
+          _rendered = false;
 
     setup();
 
@@ -43,7 +44,9 @@ define([ "editor/editor", "editor/base-editor", "util/lang", "util/keys", "util/
           } //try
 
           _timeBox.value = TimeUtils.toTimecode( time, 0 );
-          updateTrackEvent( $(parentNode).parent().get(0) );
+          if(_rendered) {
+            updateTrackEvent( $(parentNode).parent().get(0) );
+          }
         }
         else {
           _timeBox.value = _oldValue;
@@ -179,6 +182,10 @@ define([ "editor/editor", "editor/base-editor", "util/lang", "util/keys", "util/
               childDisplayList = document.createElement( "ul" ),
               tocListItem = document.createElement( "li" ),
               tocListItemLink = document.createElement( "a" );
+
+          if(!trackEvent) {
+            return;
+          }
 
           // Create list item to display
           tocListItemLink.setAttribute("href", "#");
@@ -329,7 +336,7 @@ define([ "editor/editor", "editor/base-editor", "util/lang", "util/keys", "util/
 
       if( editorElement ) {
         removeElement( editorElement );
-        renderTimeline();
+        render();
       }
     }
 
@@ -412,14 +419,16 @@ define([ "editor/editor", "editor/base-editor", "util/lang", "util/keys", "util/
       }
     }
 
-    function renderTimeline() {
+    function render() {
       _rendering = true;
+      _rendered = false;
       clearTocDisplayList();
       createTocTrackEvent();
       createChapterTrack( _tocEditorDiv, 1, 0, _butter.duration, _tocTrackEvent.track);
       updateTocDisplayList( _tocEditorDiv, _tocDisplayList );
       updateTocTrackEvent();
       _rendering = false;
+      _rendered = true;
     }
 
     function removeElement( element ) {
@@ -437,11 +446,11 @@ define([ "editor/editor", "editor/base-editor", "util/lang", "util/keys", "util/
       _addEditorTocItemBtn.addEventListener( "click", addEditorTocItem, false);
       _clearBtn.addEventListener( "click", cleareditorList, false);
       //_duplicateBtn.addEventListener( "click", duplicateTocTrackEvent, false);
-      _renderBtn.addEventListener( "click", renderTimeline, false );
+      _renderBtn.addEventListener( "click", render, false );
 
       _media.listen( "trackeventremoved", onMediaTrackEventRemoved );
 
-      if( !_timelineLoaded ) {
+      if( !_loaded ) {
         loadTracks();
       }
     }
@@ -485,7 +494,7 @@ define([ "editor/editor", "editor/base-editor", "util/lang", "util/keys", "util/
       // Load editor to list
       loadChapterTrack( _editorList, jsonList );
 
-      _timelineLoaded = true;
+      _loaded = true;
     }
 
     function loadChapterTrack( parentEditorList, jsonList ) {
@@ -570,17 +579,18 @@ define([ "editor/editor", "editor/base-editor", "util/lang", "util/keys", "util/
         $('#toc-div')/*.on('focus', '.dd3-content', function(event) {
             selectText( this );
         })*/
-        .on('keyup', '.toc-item-content[contenteditable]', function(event) {
+        .on('keypress', '.toc-item-content[contenteditable]', function(event) {
             if(event.keyCode === KeysUtils.ENTER) {
+              event.preventDefault();
               var $this = $(this),
                   $nextDiv = $this.parent().next().children(".dd3-content");
-                  updateTrackEvent( $this.parent() );
-                  renderTimeline();
-              if( $nextDiv.length==0 ) {
-                $( _addEditorTocItemBtn ).trigger("click");
+
+              if(_rendered) {
+                updateTrackEvent( $this.parent() );
+                render();
               }
-              else {
-                $( $nextDiv[0] ).trigger("focus");
+              if( $nextDiv.length > 0 ) {
+                $( $nextDiv[0] ).focus();
               }
 
             }
