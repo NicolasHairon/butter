@@ -12,6 +12,7 @@ define( [ "util/lang", "util/uri", "util/keys", "util/mediatypes", "editor/edito
 
       _urlInput = _addMediaPanel.querySelector( ".add-media-input" ),
       _addBtn = _addMediaPanel.querySelector( ".add-media-btn" ),
+      _addAllBtn = _addMediaPanel.querySelector( ".add-all-btn" ),
       _errorMessage = _parentElement.querySelector( ".media-error-message" ),
       _oldValue,
       _loadingSpinner = _parentElement.querySelector( ".media-loading-spinner" ),
@@ -147,6 +148,43 @@ define( [ "util/lang", "util/uri", "util/keys", "util/mediatypes", "editor/edito
     }
 
     function addEvent() {
+      var start = _butter.currentTime,
+          end = start + data.duration,
+          playWhenReady = false,
+          trackEvent;
+
+      function addTrackEvent() {
+        var popcornOptions = {
+          source: URI.makeUnique( data.source ).toString(),
+          denied: data.denied,
+          start: start,
+          end: end,
+          from: data.from || 0,
+          title: data.title,
+          duration: data.duration,
+          hidden: data.hidden || false
+        };
+
+        trackEvent = _butter.generateSafeTrackEvent( "sequencer", popcornOptions );
+      }
+
+      if ( end > _media.duration ) {
+        _butter.listen( "mediaready", function onMediaReady() {
+          _butter.unlisten( "mediaready", onMediaReady );
+          if ( playWhenReady ) {
+            _media.play();
+          }
+          addTrackEvent();
+        });
+
+        playWhenReady = !_media.paused;
+        setBaseDuration( end );
+      } else {
+        addTrackEvent();
+      }
+    }
+
+    function addAllEvent() {
       var start = _butter.currentTime,
           end = start + data.duration,
           playWhenReady = false,
