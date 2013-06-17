@@ -2,9 +2,9 @@
  * If a copy of the MIT license was not distributed with this file, you can
  * obtain one at https://raw.github.com/mozilla/butter/master/LICENSE */
 
-define( [ "util/lang", "util/uri", "util/keys", "util/mediatypes", "editor/editor",
+define( [ "util/lang", "util/uri", "util/keys", "util/mediatypes", "editor/editor", "editor/chapter-editor",
  "util/time", "util/dragndrop", "text!layouts/media-editor.html" ],
-  function( LangUtils, URI, KeysUtils, MediaUtils, Editor, Time, DragNDrop, EDITOR_LAYOUT ) {
+  function( LangUtils, URI, KeysUtils, MediaUtils, Editor, ChapterEditor, Time, DragNDrop, EDITOR_LAYOUT ) {
 
   var _parentElement =  LangUtils.domFragment( EDITOR_LAYOUT,".media-editor" ),
       _addMediaTitle = _parentElement.querySelector( ".add-new-media" ),
@@ -12,12 +12,12 @@ define( [ "util/lang", "util/uri", "util/keys", "util/mediatypes", "editor/edito
 
       _urlInput = _addMediaPanel.querySelector( ".add-media-input" ),
       _addBtn = _addMediaPanel.querySelector( ".add-media-btn" ),
-      _addAllBtn = _addMediaPanel.querySelector( ".add-all-btn" ),
       _errorMessage = _parentElement.querySelector( ".media-error-message" ),
       _oldValue,
       _loadingSpinner = _parentElement.querySelector( ".media-loading-spinner" ),
 
       _galleryPanel = _parentElement.querySelector( ".media-gallery" ),
+      _addAllBtn = _parentElement.querySelector( ".add-all-btn" ),
       _galleryList = _galleryPanel.querySelector( ".media-gallery-list" ),
       _GALLERYITEM = LangUtils.domFragment( EDITOR_LAYOUT, ".media-gallery-item" ),
 
@@ -25,6 +25,9 @@ define( [ "util/lang", "util/uri", "util/keys", "util/mediatypes", "editor/edito
 
       _butter,
       _media,
+
+      _mediaTrack,
+
       _mediaLoadTimeout,
       _cancelSpinner,
       MEDIA_LOAD_TIMEOUT = 10000,
@@ -87,6 +90,8 @@ define( [ "util/lang", "util/uri", "util/keys", "util/mediatypes", "editor/edito
   function addElements( data, el ) {
     el = el || _GALLERYITEM.cloneNode( true );
 
+    $(el).data('metaData', data);
+
     var deleteBtn = el.querySelector( ".mg-delete-btn" ),
         thumbnailBtn = el.querySelector( ".mg-thumbnail" ),
         thumbnailImg,
@@ -148,43 +153,6 @@ define( [ "util/lang", "util/uri", "util/keys", "util/mediatypes", "editor/edito
     }
 
     function addEvent() {
-      var start = _butter.currentTime,
-          end = start + data.duration,
-          playWhenReady = false,
-          trackEvent;
-
-      function addTrackEvent() {
-        var popcornOptions = {
-          source: URI.makeUnique( data.source ).toString(),
-          denied: data.denied,
-          start: start,
-          end: end,
-          from: data.from || 0,
-          title: data.title,
-          duration: data.duration,
-          hidden: data.hidden || false
-        };
-
-        trackEvent = _butter.generateSafeTrackEvent( "sequencer", popcornOptions );
-      }
-
-      if ( end > _media.duration ) {
-        _butter.listen( "mediaready", function onMediaReady() {
-          _butter.unlisten( "mediaready", onMediaReady );
-          if ( playWhenReady ) {
-            _media.play();
-          }
-          addTrackEvent();
-        });
-
-        playWhenReady = !_media.paused;
-        setBaseDuration( end );
-      } else {
-        addTrackEvent();
-      }
-    }
-
-    function addAllEvent() {
       var start = _butter.currentTime,
           end = start + data.duration,
           playWhenReady = false,
@@ -315,6 +283,7 @@ define( [ "util/lang", "util/uri", "util/keys", "util/mediatypes", "editor/edito
     _urlInput.addEventListener( "keydown", onEnter, false );
 
     _addBtn.addEventListener( "click", onAddMediaClick, false );
+    _addAllBtn.addEventListener( "click", onAddAllMediaClick, false );
 
     _durationInput.addEventListener( "keydown", onDurationChange, false );
     _durationInput.addEventListener( "blur", onBlur, false );
@@ -325,6 +294,66 @@ define( [ "util/lang", "util/uri", "util/keys", "util/mediatypes", "editor/edito
       e.preventDefault();
       setBaseDuration( _durationInput.value );
     }
+  }
+
+  function createMediatrack() {
+
+  }
+
+  function onAddAllMediaClick() {
+    var $galleryList = $($(_galleryList).find('li.media-gallery-item').get().reverse()),
+      newMediaDuration = 0,
+      lastStart = 0,
+      lastEnd;
+
+    // Empty media tracks
+    if( _mediaTrack ) {
+      _mediaTrack.removeAllTrackEvents();
+    }
+
+    // First adjust media total duration
+    $galleryList.each(function() {
+      var data = $(this).data("metaData");
+      newMediaDuration += data.duration;
+    });
+
+    //if( newMediaDuration > _media.duration ) {
+      setBaseDuration( newMediaDuration );
+      _media.duration = newMediaDuration;
+    //}
+
+
+    // Then add clips
+    $galleryList.each(function() {
+      var data = $(this).data("metaData");
+      lastEnd = lastStart + data.duration;
+      addTrackEvent(data);
+    });
+
+    function addTrackEvent(data) {
+      var popcornOptions = {
+        source: URI.makeUnique( data.source ).toString(),
+        denied: data.denied,
+        start: lastStart || 0,
+        end: lastEnd,
+        from: data.from || 0,
+        title: data.title,
+        duration: data.duration,
+        hidden: data.hidden || false
+      };
+
+        trackEvent = _butter.generateSafeTrackEvent( "sequencer", popcornOptions, _mediaTrack );
+
+      if(!_mediaTrack) {
+        _mediaTrack = trackEvent.track;
+      }
+      _media.dispatch("sequencetrackeventadded", trackEvent);
+
+      lastStart = lastStart + data.duration;
+    }
+
+    // Send sequence track to chapter editor
+    _media.dispatch("sequencetrackadded", _mediaTrack);
   }
 
   Editor.register( "media-editor", null, function( rootElement, butter ) {

@@ -293,6 +293,15 @@ define( [ "./eventmanager", "./trackevent", "./views/track-view", "util/sanitize
       }
     };
 
+
+    this.removeAllTrackEvents = function () {
+      var events = _trackEvents, trackEvent;
+      for ( var i=0, l=events.length; i<l; ++i ) {
+        trackEvent = events[ 0 ];
+        this.removeTrackEvent( trackEvent );
+      } //for
+    }; //emptyTrack
+
     this.findOverlappingTrackEvent = function( start, end, ignoreTrackEvent ) {
       var trackEvent, popcornOptions;
 

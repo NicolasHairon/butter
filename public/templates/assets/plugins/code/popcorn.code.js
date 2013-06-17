@@ -1,4 +1,4 @@
-// PLUGIN: toc
+// PLUGIN: text
 
 (function ( Popcorn ) {
 
@@ -20,33 +20,24 @@
     return string.replace( /\r?\n/gm, "<br>" );
   }
 
-  function reconstituteHTML( s ) {
-    return s.replace( /&#34;/g, '"' )
-            .replace( /&#39;/g, "'" )
-            .replace( /&quot;/g, '"' )
-            .replace( /&apos;/g, "'" )
-            .replace( /&lt;/g, '<' )
-            .replace( /&gt;/g, '>' )
-            .replace( /&amp;/g, '&' );
-  }
-
-  Popcorn.plugin( "toc", {
+  Popcorn.plugin( "code", {
 
     manifest: {
       about: {
-        name: "Popcorn toc Plugin",
+        name: "Popcorn text Plugin",
         version: "0.1",
         author: "@k88hudson, @mjschranz"
       },
       options: {
         text: {
+          elem: "textarea",
+          label: "Text",
+          "default": "Popcorn Maker"
+        },
+        linkUrl: {
           elem: "input",
           type: "text",
-          label: "Text",
-          "default": "Table of contents"
-        },
-        jsonml: {
-          hidden: true
+          label: "Link URL"
         },
         position: {
           elem: "select",
@@ -89,13 +80,13 @@
           styleClass: "",
           googleFonts: true,
           group: "advanced",
-          "default": "Open Sans"
+          "default": "Merriweather"
         },
         fontSize: {
           elem: "input",
           type: "number",
           label: "Font Size",
-          "default": 6,
+          "default": 10,
           units: "%",
           group: "advanced"
         },
@@ -177,16 +168,16 @@
           innerContainer = document.createElement( "div" ),
           innerSpan = document.createElement( "span" ),
           innerDiv = document.createElement( "div" ),
-          innerUl = document.createElement( "ul" ),
           fontSheet,
           fontDecorations = options.fontDecorations || options._natives.manifest.options.fontDecorations[ "default" ],
           position = options.position || options._natives.manifest.options.position[ "default" ],
           alignment = options.alignment,
           transition = options.transition || options._natives.manifest.options.transition[ "default" ],
-          //link,
+          link,
+          linkUrl = options.linkUrl,
           shadowColor = options.shadowColor || DEFAULT_SHADOW_COLOR,
           backgroundColor = options.backgroundColor || DEFAULT_BACKGROUND_COLOR,
-          popcorn = context = this;
+          context = this;
 
       if ( !target ) {
         target = this.media.parentNode;
@@ -204,7 +195,6 @@
 
       // innerDiv inside innerSpan is to allow zindex from layers to work properly.
       // if you mess with this code, make sure to check for zindex issues.
-      innerDiv.appendChild( innerUl );
       innerSpan.appendChild( innerDiv );
       innerContainer.appendChild( innerSpan );
       container.appendChild( innerContainer );
@@ -260,28 +250,27 @@
           innerDiv.style.zIndex = +options.zindex;
         }
 
-        if( options.jsonml ) {
-          var htmlFromJson = JsonML.toHTML( options.jsonml );
-          innerDiv.appendChild( htmlFromJson );
+        if ( linkUrl ) {
 
-          var links = document.querySelectorAll(".toc-item-link");
-          for( var i = 0; i < links.length; i++) {
-            var link = links[ i ];
-            link.innerHTML = reconstituteHTML( link.innerHTML );
-            link.onclick = function(e) {
-              e.preventDefault();
-              var start = e.target.getAttribute("data-start");
-              if( context.paused() ) {
-                context.pause( start );
-              }
-              else {
-                context.play( start );
-              }
-            }
+          if ( !linkUrl.match( /^http(|s):\/\// ) ) {
+            linkUrl = "//" + linkUrl;
           }
 
-        }
+          link = document.createElement( "a" );
+          link.href = linkUrl;
+          link.target = "_blank";
+          link.innerHTML = text;
 
+          link.addEventListener( "click", function() {
+            context.media.pause();
+          }, false );
+
+          link.style.color = innerContainer.style.color;
+
+          innerDiv.appendChild( link );
+        } else {
+          innerDiv.innerHTML = text;
+        }
       };
       fontSheet.href = "//fonts.googleapis.com/css?family=" + options.fontFamily.replace( /\s/g, "+" ) + ":400,700";
 

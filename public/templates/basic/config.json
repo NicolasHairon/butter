@@ -9,7 +9,8 @@
     "image": "{{baseDir}}templates/assets/editors/image/image-editor.js",
     "text": "{{baseDir}}templates/assets/editors/text/text-editor.js",
     "twitter": "{{baseDir}}templates/assets/editors/twitter/twitter-editor.js",
-    "toc": "{{baseDir}}templates/assets/editors/toc/toc-editor.js"
+    "toc": "{{baseDir}}templates/assets/editors/toc/toc-editor.js",
+    "code": "{{baseDir}}templates/assets/editors/code/code-editor.js"
   },
   "maxPluginZIndex": 1000
 }

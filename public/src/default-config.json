@@ -73,6 +73,10 @@
         "type": "toc",
         "hidden": true,
         "icon": "{{baseDir}}templates/assets/plugins/toc/toc-icon.png"
+      },
+      {
+        "type": "code",
+        "icon": "{{baseDir}}templates/assets/plugins/code/code-icon.png"
       }
     ]
   },

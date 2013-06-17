@@ -21,7 +21,8 @@ define([ "util/lang", "util/keys", "util/time", "./base-editor", "ui/widget/tool
         "Bangers",
         "Fredoka One",
         "Covered By Your Grace",
-        "Coda"
+        "Coda",
+        "Source Code Pro"
       ],
       __colorHexCodes = {
         "black": "#000000",

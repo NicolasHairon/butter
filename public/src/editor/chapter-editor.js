@@ -2,6 +2,7 @@
  * If a copy of the MIT license was not distributed with this file, you can
  * obtain one at https://raw.github.com/mozilla/butter/master/LICENSE */
 
+          
 define([ "editor/editor", "editor/base-editor", "util/lang", "util/keys", "util/time", "util/dragndrop",
   "ui/widget/textbox", "text!layouts/chapter-editor.html" ],
   function( Editor, BaseEditor, LangUtils, KeysUtils, TimeUtils, DragNDrop, TextboxWrapper, EDITOR_LAYOUT ) {
@@ -75,11 +76,12 @@ define([ "editor/editor", "editor/base-editor", "util/lang", "util/keys", "util/
     }
 
 
-    function addEditorTocItem() {
+    function addEditorTocItem( seqTrackEvent ) {
       var newTocItem = EDITOR_TOC_ITEM.cloneNode( true ),
         dragBtn = newTocItem.querySelector( ".toc-item-handle" ),
         contentDiv = newTocItem.querySelector( ".toc-item-content" ),
-        deleteBtn = newTocItem.querySelector( ".toc-item-delete" );
+        deleteBtn = newTocItem.querySelector( ".toc-item-delete" ),
+        label;
 
       deleteBtn.addEventListener( "click", function(e) {
         var $tocItem = $( newTocItem ),
@@ -93,11 +95,19 @@ define([ "editor/editor", "editor/base-editor", "util/lang", "util/keys", "util/
         $tocItem.remove();
       }, false );
 
+      if( seqTrackEvent ) {
+        $(newTocItem).data("seqTrackEvent", seqTrackEvent);
+        label = seqTrackEvent.popcornOptions.title;
+      }
+      else {
+        label = _count;
+      }
+      $(newTocItem).find( ".dd3-content" ).first().text( label );
+
       _tocEditorDiv.classList.add("visible");
       _clearBtn.classList.add("visible");
       _editorList.appendChild( newTocItem );
 
-      $(newTocItem).find( ".dd3-content" ).first().text(_count);
       _count++;
     }
 
@@ -123,11 +133,9 @@ define([ "editor/editor", "editor/base-editor", "util/lang", "util/keys", "util/
 
       editorTocItems.each(function() {
         var itemTrackEvent = $(this).data("trackEvent");
-
         if( itemTrackEvent == trackEvent ) {
           element = this;
         }
-
       });
       return element;
     }
@@ -141,12 +149,20 @@ define([ "editor/editor", "editor/base-editor", "util/lang", "util/keys", "util/
         $element.find( ".toc-item-time-start input" ).first().val( TimeUtils.toTimecode(popcornOptions.start) ) ;
         $element.find( ".toc-item-time-end input" ).first().val( TimeUtils.toTimecode(popcornOptions.end) ) ;
       }
-      if( !_rendering ) {
-        clearTocDisplayList();
-        updateTocDisplayList();
-        updateTocTrackEvent();
-      }
+      updateToc();
     }
+
+    /*function updateEditorTocItemBySequence( seqTrackEvent ) {
+      var editorElement = getEditorTocItem( seqTrackEvent );
+      if( editorElement ) {
+        var $element = $(editorElement),
+            popcornOptions = seqTrackEvent.popcornOptions;
+        $element.find( ".dd3-content" ).first().text(popcornOptions.title);
+        $element.find( ".toc-item-time-start input" ).first().val( TimeUtils.toTimecode(popcornOptions.start) ) ;
+        $element.find( ".toc-item-time-end input" ).first().val( TimeUtils.toTimecode(popcornOptions.end) ) ;
+      }
+      updateToc();
+    }*/
 
     function updateTrackEvent( element ) {
       var popcornOptions = {},
@@ -162,6 +178,10 @@ define([ "editor/editor", "editor/base-editor", "util/lang", "util/keys", "util/
         popcornOptions.level = ($element.parentsUntil("#toc-ol").length)/2+1;
         trackEvent.update( popcornOptions );
       }
+      updateToc();
+    }
+
+    function updateToc() {
       if( !_rendering ) {
         clearTocDisplayList();
         updateTocDisplayList();
@@ -314,6 +334,16 @@ define([ "editor/editor", "editor/base-editor", "util/lang", "util/keys", "util/
       var trackEvent = e.target;
     }
 
+    function onSequenceTrackEventAdded( e ) {
+      var seqTrackEvent = e.data;
+      if( seqTrackEvent ) {
+        addEditorTocItem( seqTrackEvent );
+      }
+    }
+    function onSequenceTrackAdded( e ) {
+      render();
+    }
+
     function onTrackEventAdded( e ) {
       var trackEvent = e.target;
     }
@@ -356,7 +386,16 @@ define([ "editor/editor", "editor/base-editor", "util/lang", "util/keys", "util/
 
         subListItems.each(function() {
           var text = $(this).find( ".dd3-content" ).first().text(),
-              trackEvent = $(this).data("trackEvent");
+              trackEvent = $(this).data("trackEvent"),
+              seqTrackEvent = $(this).data("seqTrackEvent");
+
+          // If time data from a sequence track event, get it
+          if( seqTrackEvent ) {
+            chapterStart = seqTrackEvent.popcornOptions.start;
+            chapterEnd = seqTrackEvent.popcornOptions.end;
+            //text = seqTrackEvent.popcornOptions.title;
+          }
+        
 
           // If not already in the timeline, create a chapter track event
           if( trackEvent === undefined ) {
@@ -449,6 +488,8 @@ define([ "editor/editor", "editor/base-editor", "util/lang", "util/keys", "util/
       _renderBtn.addEventListener( "click", render, false );
 
       _media.listen( "trackeventremoved", onMediaTrackEventRemoved );
+      _media.listen( "sequencetrackadded", onSequenceTrackAdded );
+      _media.listen( "sequencetrackeventadded", onSequenceTrackEventAdded );
 
       if( !_loaded ) {
         loadTracks();
@@ -479,9 +520,7 @@ define([ "editor/editor", "editor/base-editor", "util/lang", "util/keys", "util/
             _tocTrackEvent = trackEvent;
             break;
           }
-          
         }
-        
       }
 
       if( !_tocTrackEvent ) {

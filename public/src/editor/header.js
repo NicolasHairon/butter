@@ -84,6 +84,7 @@ define([ "ui/widget/tooltip" ], function( Tooltip ) {
         _projectButton.removeEventListener( "click", openProjectEditor, false );
         // If the project editor is open, open the media editor instead.
         if ( _currentFocus === _projectButton ) {
+          editorModule.openEditor( "chapter-editor" );
           editorModule.openEditor( "media-editor" );
         }
       },

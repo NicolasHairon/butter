@@ -32,6 +32,7 @@ requirejs.config({
     "popcorn.wikipedia": "../templates/assets/plugins/wikipedia/popcorn.wikipedia",
     "popcorn.chapter": "../templates/assets/plugins/chapter/popcorn.chapter",
     "popcorn.toc": "../templates/assets/plugins/toc/popcorn.toc",
+    "popcorn.code": "../templates/assets/plugins/code/popcorn.code",
 
     // RequireJS
     "text": "../external/require/text"
@@ -67,7 +68,8 @@ requirejs.config({
     "popcorn.twitter": [ "popcorn.core" ],
     "popcorn.wikipedia": [ "popcorn.core" ],
     "popcorn.chapter": [ "popcorn.core" ],
-    "popcorn.toc": [ "popcorn.core" ]
+    "popcorn.toc": [ "popcorn.core" ],
+    "popcorn.code": [ "popcorn.core" ]
   }
 });
 
@@ -89,6 +91,7 @@ define([
   "popcorn.wikipedia",
   "popcorn.chapter",
   "popcorn.toc",
+  "popcorn.code",
   "popcorn.HTMLMediaElement",
   "popcorn.HTMLNullVideoElement",
   "popcorn.HTMLSoundCloudAudioElement",

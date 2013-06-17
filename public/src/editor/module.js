@@ -14,7 +14,8 @@ define( [ "core/eventmanager", "core/trackevent", "./editor",
           "./media-gallery-editor", "./chapter-editor", "./project-editor", "./sequencer-editor" ],
   function( EventManager, TrackEvent, Editor,
             Toggler, LangUtils, EDITOR_AREA_LAYOUT,
-            DefaultEditor, Logger, Header ){
+            DefaultEditor, Logger, Header,
+            GalleryEditor, ChapterEditor, ProjectEditor, SequencerEditor ){
 
   var DEFAULT_EDITOR_NAME = "plugin-list";
 
