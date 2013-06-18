@@ -91,6 +91,7 @@ define( [ "util/lang", "util/uri", "util/keys", "util/mediatypes", "editor/edito
     el = el || _GALLERYITEM.cloneNode( true );
 
     $(el).data('metaData', data);
+    $(el).data('hasTrackEvent', false);
 
     var deleteBtn = el.querySelector( ".mg-delete-btn" ),
         thumbnailBtn = el.querySelector( ".mg-thumbnail" ),
@@ -306,28 +307,28 @@ define( [ "util/lang", "util/uri", "util/keys", "util/mediatypes", "editor/edito
       lastStart = 0,
       lastEnd;
 
-    // Empty media tracks
-    if( _mediaTrack ) {
-      _mediaTrack.removeAllTrackEvents();
-    }
-
     // First adjust media total duration
     $galleryList.each(function() {
       var data = $(this).data("metaData");
       newMediaDuration += data.duration;
     });
 
-    //if( newMediaDuration > _media.duration ) {
-      setBaseDuration( newMediaDuration );
-      _media.duration = newMediaDuration;
-    //}
+    setBaseDuration( newMediaDuration );
+    _media.duration = newMediaDuration;
 
 
     // Then add clips
     $galleryList.each(function() {
-      var data = $(this).data("metaData");
+      var data = $(this).data("metaData"),
+        hasTrackEvent = $(this).data("hasTrackEvent");
       lastEnd = lastStart + data.duration;
-      addTrackEvent(data);
+
+      if( !hasTrackEvent ) {
+        addTrackEvent(data);
+      }
+      
+      $(this).data("hasTrackEvent", true);
+      lastStart = lastEnd;
     });
 
     function addTrackEvent(data) {
@@ -342,14 +343,12 @@ define( [ "util/lang", "util/uri", "util/keys", "util/mediatypes", "editor/edito
         hidden: data.hidden || false
       };
 
-        trackEvent = _butter.generateSafeTrackEvent( "sequencer", popcornOptions, _mediaTrack );
+      trackEvent = _butter.generateSafeTrackEvent( "sequencer", popcornOptions, _mediaTrack );
 
       if(!_mediaTrack) {
         _mediaTrack = trackEvent.track;
       }
       _media.dispatch("sequencetrackeventadded", trackEvent);
-
-      lastStart = lastStart + data.duration;
     }
 
     // Send sequence track to chapter editor

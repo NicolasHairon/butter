@@ -75,6 +75,14 @@ define([ "editor/editor", "editor/base-editor", "util/lang", "util/keys", "util/
       }, false );
     }
 
+    function onNewItemBtnClick(event) {
+      addEditorTocItem();
+    }
+
+    function onClearBtnClick(event) {
+      clearEditorList();
+    }
+
 
     function addEditorTocItem( seqTrackEvent ) {
       var newTocItem = EDITOR_TOC_ITEM.cloneNode( true ),
@@ -95,7 +103,7 @@ define([ "editor/editor", "editor/base-editor", "util/lang", "util/keys", "util/
         $tocItem.remove();
       }, false );
 
-      if( seqTrackEvent ) {
+      if( seqTrackEvent !== undefined ) {
         $(newTocItem).data("seqTrackEvent", seqTrackEvent);
         label = seqTrackEvent.popcornOptions.title;
       }
@@ -111,7 +119,15 @@ define([ "editor/editor", "editor/base-editor", "util/lang", "util/keys", "util/
       _count++;
     }
 
-    function cleareditorList() {
+    function addEditorTocItemFromSequence( seqTrackEvent ) {
+      var editorTocItem = getEditorTocItem( seqTrackEvent, "seqTrackEvent" );
+      if( editorTocItem ) {
+        return;
+      }
+      addEditorTocItem( seqTrackEvent );
+    }
+
+    function clearEditorList() {
       var editorList = document.getElementById("toc-ol");
 
       // Recursively remove track events
@@ -127,12 +143,18 @@ define([ "editor/editor", "editor/base-editor", "util/lang", "util/keys", "util/
      *
      * @param {Object} trackEvent: The trackEvent object from which we try to find related editor element.
      */
-    function getEditorTocItem( trackEvent ) {
+    function getEditorTocItem( trackEvent, dataKey ) {
       var element,
           editorTocItems = $(_tocEditorDiv).find("li");
 
+      dataKey = dataKey || "trackEvent";
+
       editorTocItems.each(function() {
-        var itemTrackEvent = $(this).data("trackEvent");
+        var itemTrackEvent = $(this).data( dataKey );
+
+//var id1 = itemTrackEvent.popcornOptions;
+//var id2 = trackEvent.popcornOptions;
+
         if( itemTrackEvent == trackEvent ) {
           element = this;
         }
@@ -148,8 +170,8 @@ define([ "editor/editor", "editor/base-editor", "util/lang", "util/keys", "util/
         $element.find( ".dd3-content" ).first().text(popcornOptions.text);
         $element.find( ".toc-item-time-start input" ).first().val( TimeUtils.toTimecode(popcornOptions.start) ) ;
         $element.find( ".toc-item-time-end input" ).first().val( TimeUtils.toTimecode(popcornOptions.end) ) ;
+        updateToc();
       }
-      updateToc();
     }
 
     /*function updateEditorTocItemBySequence( seqTrackEvent ) {
@@ -177,8 +199,8 @@ define([ "editor/editor", "editor/base-editor", "util/lang", "util/keys", "util/
         popcornOptions.text  = $element.find(".toc-item-content:first").text();
         popcornOptions.level = ($element.parentsUntil("#toc-ol").length)/2+1;
         trackEvent.update( popcornOptions );
+        updateToc();
       }
-      updateToc();
     }
 
     function updateToc() {
@@ -215,8 +237,8 @@ define([ "editor/editor", "editor/base-editor", "util/lang", "util/keys", "util/
           tocListItemLink.setAttribute("class", "toc-item-link");
           tocListItemLink.innerHTML = text;
 
-          $( tocListItemLink ).removeData("trackEvent");
-          $( tocListItemLink ).data("trackEvent", trackEvent);
+          //$( tocListItemLink ).removeData("trackEvent");
+          //$( tocListItemLink ).data("trackEvent", trackEvent);
 
           /*tocListItemLink.removeEventListener("click");
           tocListItemLink.addEventListener("click", function(e) {
@@ -234,7 +256,10 @@ define([ "editor/editor", "editor/base-editor", "util/lang", "util/keys", "util/
         });
       }
       else {
-        displayList.parentNode.removeChild( displayList );
+        if(displayList.parentNode) {
+          displayList.parentNode.removeChild( displayList );
+
+        }
       }
     }
 
@@ -318,7 +343,7 @@ define([ "editor/editor", "editor/base-editor", "util/lang", "util/keys", "util/
       trackEvent = generateSafeChapterTrackEvent( popcornOptions, track );
 
       // Listen to updates on track event
-      trackEvent.listen( "trackeventadded", onTrackEventAdded );
+      //trackEvent.listen( "trackeventadded", onTrackEventAdded );
       trackEvent.listen( "trackeventupdated", onTrackEventUpdated );
 
       // Save trackevent associated to editor element
@@ -337,16 +362,17 @@ define([ "editor/editor", "editor/base-editor", "util/lang", "util/keys", "util/
     function onSequenceTrackEventAdded( e ) {
       var seqTrackEvent = e.data;
       if( seqTrackEvent ) {
-        addEditorTocItem( seqTrackEvent );
+        addEditorTocItemFromSequence( seqTrackEvent );
       }
     }
+
     function onSequenceTrackAdded( e ) {
       render();
     }
 
-    function onTrackEventAdded( e ) {
+    /*function onTrackEventAdded( e ) {
       var trackEvent = e.target;
-    }
+    }*/
 
     function onTrackEventUpdated( e ) {
       var trackEvent = e.target;
@@ -482,8 +508,8 @@ define([ "editor/editor", "editor/base-editor", "util/lang", "util/keys", "util/
     }
 
     function setup() {
-      _addEditorTocItemBtn.addEventListener( "click", addEditorTocItem, false);
-      _clearBtn.addEventListener( "click", cleareditorList, false);
+      _addEditorTocItemBtn.addEventListener( "click", onNewItemBtnClick, false);
+      _clearBtn.addEventListener( "click", onClearBtnClick, false);
       //_duplicateBtn.addEventListener( "click", duplicateTocTrackEvent, false);
       _renderBtn.addEventListener( "click", render, false );
 
