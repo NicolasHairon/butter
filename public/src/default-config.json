@@ -71,7 +71,7 @@
       },
       {
         "type": "toc",
-        "hidden": true,
+        "hidden": false,
         "icon": "{{baseDir}}templates/assets/plugins/toc/toc-icon.png"
       },
       {

@@ -87,7 +87,7 @@
           elem: "input",
           type: "number",
           label: "Font Size",
-          "default": 6,
+          "default": 4,
           units: "%",
           group: "advanced"
         },

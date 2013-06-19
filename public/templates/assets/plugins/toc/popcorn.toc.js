@@ -95,7 +95,7 @@
           elem: "input",
           type: "number",
           label: "Font Size",
-          "default": 6,
+          "default": 4,
           units: "%",
           group: "advanced"
         },
@@ -268,6 +268,17 @@
           for( var i = 0; i < links.length; i++) {
             var link = links[ i ];
             link.innerHTML = reconstituteHTML( link.innerHTML );
+
+        /*ToolTip.create({
+          name: options.name,
+          element: link,
+          message: link.innerHTML,
+          top: normalize( options.top ),
+          left: normalize( options.left ),
+          hidden: options.hidden,
+          hover: options.hover
+        });*/
+
             link.onclick = function(e) {
               e.preventDefault();
               var start = e.target.getAttribute("data-start");
@@ -278,7 +289,12 @@
                 context.play( start );
               }
             }
+
+            //$(link).button();
           }
+
+
+          $( htmlFromJson ).jBreadCrumb();
 
         }
 

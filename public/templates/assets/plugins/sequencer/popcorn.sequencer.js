@@ -31,7 +31,8 @@
 
       options.setupContainer = function() {
         var container = document.createElement( "div" ),
-            target = Popcorn.dom.find( options.target );
+            target = Popcorn.dom.find( options.target ),
+            transition = options.transition || options._natives.manifest.options.transition[ "default" ];
 
         if ( !target ) {
           target = _this.media.parentNode;
@@ -45,8 +46,10 @@
         container.style.position = "absolute";
         container.style.width = "100%";
         container.style.height = "100%";
-        container.style.top = 0;
+        //container.style.top = 0;
         container.style.left = 0;
+        container.style.bottom = 0;
+        container.style.right = 0;
 
         target.appendChild( container );
       };
@@ -99,8 +102,10 @@
         options.ready = true;
         options._container.style.width = ( options.width || "100" ) + "%";
         options._container.style.height = ( options.height || "100" ) + "%";
-        options._container.style.top = ( options.top || "0" ) + "%";
+        //options._container.style.top = ( options.top || "0" ) + "%";
         options._container.style.left = ( options.left || "0" ) + "%";
+        options._container.style.bottom = ( options.bottom || "0" ) + "%";
+        options._container.style.right = ( options.right || "0" ) + "%";
         _this.on( "volumechange", options._volumeEvent );
         if ( options.active ) {
           options._startEvent();
@@ -448,6 +453,14 @@
         options.left = updates.left;
         options._container.style.left = ( options.left || "0" ) + "%";
       }
+      if ( updates.hasOwnProperty( "bottom" ) ) {
+        options.bottom = updates.bottom;
+        options._container.style.bottom = ( options.bottom || "0" ) + "%";
+      }
+      if ( updates.hasOwnProperty( "right" ) ) {
+        options.right = updates.right;
+        options._container.style.right = ( options.right || "0" ) + "%";
+      }
       if ( updates.hasOwnProperty( "height" ) ) {
         options.height = updates.height;
         options._container.style.height = ( options.height || "100" ) + "%";
@@ -555,7 +568,7 @@
           elem: "input",
           type: "number",
           label: "Width",
-          "default": 100,
+          "default": 80,
           "units": "%",
           hidden: true
         },
@@ -563,7 +576,7 @@
           elem: "input",
           type: "number",
           label: "Height",
-          "default": 100,
+          "default": 80,
           "units": "%",
           hidden: true
         },
@@ -571,7 +584,7 @@
           elem: "input",
           type: "number",
           label: "Top",
-          "default": 0,
+          "default": 20,
           "units": "%",
           hidden: true
         },
@@ -579,6 +592,22 @@
           elem: "input",
           type: "number",
           label: "Left",
+          "default": 0,
+          "units": "%",
+          hidden: true
+        },
+        bottom: {
+          elem: "input",
+          type: "number",
+          label: "Bottom",
+          "default": 0,
+          "units": "%",
+          hidden: true
+        },
+        right: {
+          elem: "input",
+          type: "number",
+          label: "Right",
           "default": 0,
           "units": "%",
           hidden: true
@@ -623,7 +652,14 @@
         duration: {
           hidden: true,
           "default": 0
-        }
+        },
+        transition: {
+          elem: "select",
+          options: [ "None", "Fade" ],
+          values: [ "popcorn-none", "popcorn-fade" ],
+          label: "Transition",
+          "default": "popcorn-fade"
+        },
       }
     }
   });

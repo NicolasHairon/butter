@@ -220,6 +220,32 @@ define( [ "util/lang", "util/uri", "util/keys", "util/mediatypes", "editor/edito
     }
   }
 
+  function doAddMediaTask(url, next){
+      addMediaToGallery( url, onDenied );
+
+      setTimeout(function(){
+          next();
+      }, MEDIA_LOAD_TIMEOUT);
+  }
+
+  function createAddMediaTask(url){
+    return function(next) {
+        doAddMediaTask(url, next, onDenied);
+    }
+  }
+
+  function addAllMediaToGallery( urlInput, onDenied ) {
+    urlInput = urlInput.replace(/(\r\n|\n|\r)/g, ' ');
+    var urlList = urlInput.split(' ');
+
+    for(i = 0; i < urlList.length; i++) {
+      //$(document).queue( 'addAllMediaTask', createAddMediaTask( urlList[i] ) );
+      // TODO: make call chaining work
+      addMediaToGallery( urlList[i], onDenied );
+    }
+    clearTimeout( _mediaLoadTimeout );
+  }
+
   function addMediaToGallery( url, onDenied ) {
     var data = {};
 
@@ -273,7 +299,7 @@ define( [ "util/lang", "util/uri", "util/keys", "util/mediatypes", "editor/edito
       _loadingSpinner.classList.remove( "hidden" );
     }, 300 );
     _addBtn.classList.add( "hidden" );
-    addMediaToGallery( _urlInput.value, onDenied );
+    addAllMediaToGallery( _urlInput.value, onDenied );
   }
 
   function setup() {
@@ -295,10 +321,6 @@ define( [ "util/lang", "util/uri", "util/keys", "util/mediatypes", "editor/edito
       e.preventDefault();
       setBaseDuration( _durationInput.value );
     }
-  }
-
-  function createMediatrack() {
-
   }
 
   function onAddAllMediaClick() {
@@ -326,7 +348,7 @@ define( [ "util/lang", "util/uri", "util/keys", "util/mediatypes", "editor/edito
       if( !hasTrackEvent ) {
         addTrackEvent(data);
       }
-      
+
       $(this).data("hasTrackEvent", true);
       lastStart = lastEnd;
     });
@@ -386,6 +408,11 @@ define( [ "util/lang", "util/uri", "util/keys", "util/mediatypes", "editor/edito
     Editor.BaseEditor.extend( _this, butter, rootElement, {
       open: function() {
         setBaseDuration( _media.duration );
+        $(document).queue('tasks', function(){
+            console.log("all done");
+        });
+
+        $(document).dequeue('tasks');
       },
       close: function() {}
     });
