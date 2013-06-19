@@ -568,6 +568,10 @@ define([ "editor/editor", "editor/base-editor", "util/lang", "util/keys", "util/
         if( 'string' === typeof item) {
           continue;
         }
+
+        if(!(item instanceof Array)) {
+          continue;
+        }
         
         var tocItemLink = item[1],
           tocItemSubList = item[2];
