@@ -215,7 +215,7 @@ function init() {
     }
   }
 
-  function setupAttribution( popcorn ) {
+  /*function setupAttribution( popcorn ) {
     var icon = $( ".media-icon" ),
         src = $( ".attribution-media-src" ),
         //toggler = $( ".attribution-logo" ),
@@ -243,14 +243,14 @@ function init() {
 
     icon.classList.add( classes[ type ] );
 
-    /*toggler.addEventListener( "click", function() {
+    toggler.addEventListener( "click", function() {
       container.classList.toggle( "attribution-on" );
     }, false );
 
     closeBtn.addEventListener( "click", function() {
       container.classList.toggle( "attribution-on" );
-    }, false );*/
-  }
+    }, false );
+  }*/
 
   var require = requirejs.config({
     baseUrl: "/src",
@@ -367,7 +367,7 @@ function init() {
             $( "#share-url" ).value = getCanonicalURL();
           }
 
-          setupAttribution( popcorn );
+          //setupAttribution( popcorn );
         },
         preload: config.preload
       });
