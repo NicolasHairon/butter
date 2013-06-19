@@ -197,6 +197,7 @@ function init() {
 
     popcorn.on( "playing", function() {
       hide( "#share-container" );
+      hide( "#controls-big-play-button" );
       setStateClass( "embed-playing" );
     });
 
@@ -217,10 +218,10 @@ function init() {
   function setupAttribution( popcorn ) {
     var icon = $( ".media-icon" ),
         src = $( ".attribution-media-src" ),
-        toggler = $( ".attribution-logo" ),
-        closeBtn = $( ".attribution-close" ),
-        container = $( ".attribution-info" ),
-        extraAttribution = $( ".attribution-extra" ),
+        //toggler = $( ".attribution-logo" ),
+        //closeBtn = $( ".attribution-close" ),
+        //container = $( ".attribution-info" ),
+        //extraAttribution = $( ".attribution-extra" ),
         classes = {
           html5: "html5-icon",
           youtube: "youtube-icon",
@@ -233,7 +234,7 @@ function init() {
 
     type = popcorn.media._util ? popcorn.media._util.type.toLowerCase() : "html5";
 
-    extraAttribution.innerHTML = Popcorn.manifest.googlemap.about.attribution;
+    //extraAttribution.innerHTML = Popcorn.manifest.googlemap.about.attribution;
 
     // YouTube currently won't have a popcorn.media._util this is a fallback check for YT
     if ( type === "html5" ) {
@@ -242,13 +243,13 @@ function init() {
 
     icon.classList.add( classes[ type ] );
 
-    toggler.addEventListener( "click", function() {
+    /*toggler.addEventListener( "click", function() {
       container.classList.toggle( "attribution-on" );
     }, false );
 
     closeBtn.addEventListener( "click", function() {
       container.classList.toggle( "attribution-on" );
-    }, false );
+    }, false );*/
   }
 
   var require = requirejs.config({

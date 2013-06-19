@@ -292,10 +292,6 @@
 
             //$(link).button();
           }
-
-
-          $( htmlFromJson ).jBreadCrumb();
-
         }
 
       };

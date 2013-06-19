@@ -478,7 +478,6 @@ define([ "editor/editor", "editor/base-editor", "util/lang", "util/keys", "util/
         var updateOptions = {};
         var jsonml = JsonML.fromHTML( _tocDisplayList );
         updateOptions.jsonml = jsonml;
-        //updateOptions.htmlToc = _tocDisplayList;
 
         _tocTrackEvent.update( updateOptions );
       }
@@ -660,6 +659,8 @@ define([ "editor/editor", "editor/base-editor", "util/lang", "util/keys", "util/
 
             }
         });
+
+        _tocDisplayList.classList.add('toc-list');
 
       },
       close: function() {

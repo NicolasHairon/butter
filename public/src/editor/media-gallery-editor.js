@@ -408,11 +408,6 @@ define( [ "util/lang", "util/uri", "util/keys", "util/mediatypes", "editor/edito
     Editor.BaseEditor.extend( _this, butter, rootElement, {
       open: function() {
         setBaseDuration( _media.duration );
-        $(document).queue('tasks', function(){
-            console.log("all done");
-        });
-
-        $(document).dequeue('tasks');
       },
       close: function() {}
     });
