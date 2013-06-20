@@ -29,7 +29,7 @@ define( [ "util/uri" ],
       }
       return "HTML5";
     },
-    getMetaData: function( baseUrl, successCallback, errorCallback ) {
+    getMetaData: function( baseUrl, successCallback, errorCallback, nextCallback ) {
       var id,
           parsedUri,
           splitUriDirectory,
@@ -39,6 +39,7 @@ define( [ "util/uri" ],
 
       successCallback = successCallback || function(){};
       errorCallback = errorCallback || function(){};
+      nextCallback = nextCallback || function(){};
 
       if ( type === "YouTube" ) {
         parsedUri = URI.parse( baseUrl );
@@ -87,7 +88,8 @@ define( [ "util/uri" ],
               thumbnail: respData.thumbnail.hqDefault,
               author: respData.uploader,
               duration: popcorn.duration(),
-              from: from
+              from: from,
+              next: nextCallback
             });
           }
 
@@ -129,7 +131,8 @@ define( [ "util/uri" ],
             thumbnail: respData.artwork_url || "../../resources/icons/soundcloud-small.png",
             duration: respData.duration / 1000,
             title: respData.title,
-            hidden: true
+            hidden: true,
+            next: nextCallback
           });
         });
       } else if ( type === "Vimeo" ) {
@@ -147,7 +150,8 @@ define( [ "util/uri" ],
             type: type,
             thumbnail: respData.thumbnail_small,
             duration: respData.duration,
-            title: respData.title
+            title: respData.title,
+            next: nextCallback
           });
         });
       } else if ( type === "null" ) {
@@ -155,7 +159,8 @@ define( [ "util/uri" ],
           source: baseUrl,
           type: type,
           title: baseUrl,
-          duration: +REGEX_MAP[ "null" ].exec( baseUrl )[ 1 ]
+          duration: +REGEX_MAP[ "null" ].exec( baseUrl )[ 1 ],
+          next: nextCallback
         });
       } else if ( type === "HTML5" ) {
         videoElem = document.createElement( "video" );
@@ -165,7 +170,8 @@ define( [ "util/uri" ],
             type: type,
             title: baseUrl.substring( baseUrl.lastIndexOf( "/" ) + 1 ),
             thumbnail: '../../thumbnail-video-html5.png',
-            duration: videoElem.duration
+            duration: videoElem.duration,
+            next: nextCallback
           });
         }, false );
         videoElem.src = URI.makeUnique( baseUrl ).toString();
