@@ -322,6 +322,8 @@ define( [ "core/eventmanager", "core/media", "util/sanitizer" ],
       data.description = _description;
       data.thumbnail = _thumbnail;
       data.backupDate = Date.now();
+      
+      console.log(data);
       try {
         dataJSON = JSON.stringify( data );
         __butterStorage.setItem( "butter-backup-project", dataJSON );

@@ -164,7 +164,7 @@ define( [ "util/uri" ],
             source: baseUrl,
             type: type,
             title: baseUrl.substring( baseUrl.lastIndexOf( "/" ) + 1 ),
-            thumbnail: videoElem,
+            thumbnail: '../../thumbnail-video-html5.png',
             duration: videoElem.duration
           });
         }, false );

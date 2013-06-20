@@ -138,12 +138,12 @@ define( [ "util/lang", "util/uri", "util/keys", "util/mediatypes", "editor/edito
     el.querySelector( ".mg-type" ).classList.add( data.type.toLowerCase() + "-icon" );
     el.querySelector( ".mg-type-text" ).innerHTML = data.type;
     el.querySelector( ".mg-duration" ).innerHTML = Time.toTimecode( data.duration, 0 );
-    if ( data.type === "HTML5" ) {
+    /*if ( data.type === "HTML5" ) {
       thumbnailImg = data.thumbnail;
-    } else {
-      thumbnailImg = document.createElement( "img" );
-      thumbnailImg.src = data.thumbnail;
-    }
+    } else {*/
+    thumbnailImg = document.createElement( "img" );
+    thumbnailImg.src = data.thumbnail;
+    //}
     thumbnailBtn.appendChild( thumbnailImg );
     thumbnailBtn.src = data.thumbnail;
 
