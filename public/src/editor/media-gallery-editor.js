@@ -13,6 +13,7 @@ define( [ "util/lang", "util/uri", "util/keys", "util/mediatypes", "editor/edito
       _urlInput = _addMediaPanel.querySelector( ".add-media-input" ),
       _addBtn = _addMediaPanel.querySelector( ".add-media-btn" ),
       _errorMessage = _parentElement.querySelector( ".media-error-message" ),
+      _validMessage = _parentElement.querySelector( ".media-valid-message" ),
       _oldValue,
       _loadingSpinner = _parentElement.querySelector( ".media-loading-spinner" ),
 
@@ -30,10 +31,15 @@ define( [ "util/lang", "util/uri", "util/keys", "util/mediatypes", "editor/edito
 
       _mediaLoadTimeout,
       _cancelSpinner,
+
       MEDIA_LOAD_TIMEOUT = 10000,
-      TIMEOUT_ERROR = "Your media source is taking too long to load",
-      _this,
-      TRANSITION_TIME = 2000;
+      TRANSITION_TIME = 2000,
+
+      MEDIA_EXISTING = "One or more media are already in the gallery",
+      MEDIA_LOADING_ERROR = "One or more media have failed to load",
+      MEDIA_LOADED = "Your media source(s) have been loaded",
+
+      _this;
 
   function toggleAddNewMediaPanel() {
     _parentElement.classList.toggle( "add-media-collapsed" );
@@ -48,7 +54,6 @@ define( [ "util/lang", "util/uri", "util/keys", "util/mediatypes", "editor/edito
     _addMediaPanel.classList.remove( "invalid-field" );
     _errorMessage.classList.add( "hidden" );
     _loadingSpinner.classList.add( "hidden" );
-
     _addBtn.classList.add( "hidden" );
   }
 
@@ -74,17 +79,6 @@ define( [ "util/lang", "util/uri", "util/keys", "util/mediatypes", "editor/edito
     }
 
     _media.url = "#t=," + durationSeconds;
-  }
-
-  function onDenied( error ) {
-    clearTimeout( _cancelSpinner );
-    clearTimeout( _mediaLoadTimeout );
-    _errorMessage.innerHTML = error;
-    _loadingSpinner.classList.add( "hidden" );
-    _addMediaPanel.classList.add( "invalid-field" );
-    setTimeout( function() {
-      _errorMessage.classList.remove( "hidden" );
-    }, 300 );
   }
 
   function addElements( data, el ) {
@@ -132,18 +126,16 @@ define( [ "util/lang", "util/uri", "util/keys", "util/mediatypes", "editor/edito
       _butter.dispatch( "mediaclipremoved" );
     }, false );
 
-    _loadingSpinner.classList.add( "hidden" );
+    //_loadingSpinner.classList.add( "hidden" );
 
     el.querySelector( ".mg-title" ).innerHTML = data.title;
     el.querySelector( ".mg-type" ).classList.add( data.type.toLowerCase() + "-icon" );
     el.querySelector( ".mg-type-text" ).innerHTML = data.type;
     el.querySelector( ".mg-duration" ).innerHTML = Time.toTimecode( data.duration, 0 );
-    /*if ( data.type === "HTML5" ) {
-      thumbnailImg = data.thumbnail;
-    } else {*/
+
     thumbnailImg = document.createElement( "img" );
     thumbnailImg.src = data.thumbnail;
-    //}
+
     thumbnailBtn.appendChild( thumbnailImg );
     thumbnailBtn.src = data.thumbnail;
 
@@ -197,7 +189,54 @@ define( [ "util/lang", "util/uri", "util/keys", "util/mediatypes", "editor/edito
     if ( _this.scrollbar ) {
       _this.scrollbar.update();
     }
-    resetInput();
+  }
+
+  function createAddMediaTask( url ) {
+    return function( next ) {
+      addMediaToGallery( url, next, onDenied );
+    }
+  }
+
+  function addAllMediaToGallery( urlInput ) {
+    urlInput = urlInput.replace(/(\n|\r|\r\n)/g, ' ');
+    var urlList = urlInput.split(' ');
+    // Fetch all urls from input
+    for(i = 0; i < urlList.length; i++) {
+      $(_galleryPanel).queue( 'addAllMediaTask', createAddMediaTask( urlList[i] ) );
+      // TODO: make call chaining work
+      //addMediaToGallery( urlList[i], onDenied );
+    }
+
+    _loadingSpinner.classList.remove( "hidden" );
+
+    $(_galleryPanel).queue('addAllMediaTask', function(){
+        _validMessage.innerHTML = MEDIA_LOADED;
+        _errorMessage.classList.add( "hidden" );
+        _validMessage.classList.remove( "hidden" );
+        resetInput();
+        setTimeout( function() {
+          _validMessage.classList.add( "hidden" );
+          _loadingSpinner.classList.add( "hidden" );
+        }, 5000 );
+    });
+    $(_galleryPanel).dequeue('addAllMediaTask');
+  }
+
+  function addMediaToGallery( url, next, onDenied ) {
+    var data = {};
+
+    // Don't trigger with empty inputs
+    if ( !url ) {
+      return;
+    }
+
+    data.source = url;
+    data.type = "sequencer";
+    _mediaLoadTimeout = setTimeout( function() {
+      next();
+      onDenied( MEDIA_LOADING_ERROR );
+    }, MEDIA_LOAD_TIMEOUT );
+    MediaUtils.getMetaData( data.source, onSuccess, onDenied, next );
   }
 
   function onSuccess( data ) {
@@ -215,53 +254,24 @@ define( [ "util/lang", "util/uri", "util/keys", "util/mediatypes", "editor/edito
       }, TRANSITION_TIME );
 
       addElements( data, el );
+      // Necessary to avoid timeout errors
+      clearTimeout( _mediaLoadTimeout );
     } else {
-      onDenied( "Your gallery already has that media added to it" );
+      onDenied( MEDIA_EXISTING );
     }
+    // Call next media loading
+    data.next();
   }
 
-  function doAddMediaTask(url, next){
-      addMediaToGallery( url, onDenied );
-
-      setTimeout(function(){
-          next();
-      }, MEDIA_LOAD_TIMEOUT);
-  }
-
-  function createAddMediaTask(url){
-    return function(next) {
-        doAddMediaTask(url, next, onDenied);
-    }
-  }
-
-  function addAllMediaToGallery( urlInput, onDenied ) {
-    urlInput = urlInput.replace(/(\r\n|\n|\r)/g, ' ');
-    var urlList = urlInput.split(' ');
-
-    for(i = 0; i < urlList.length; i++) {
-      //$(document).queue( 'addAllMediaTask', createAddMediaTask( urlList[i] ) );
-      // TODO: make call chaining work
-      addMediaToGallery( urlList[i], onDenied );
-    }
+  function onDenied( error ) {
+    clearTimeout( _cancelSpinner );
     clearTimeout( _mediaLoadTimeout );
-  }
-
-  function addMediaToGallery( url, onDenied ) {
-    var data = {};
-
-    // Don't trigger with empty inputs
-    if ( !url ) {
-      return;
-    }
-
-    data.source = url;
-    data.type = "sequencer";
-    _mediaLoadTimeout = setTimeout( function() {
-      _errorMessage.innerHTML = TIMEOUT_ERROR;
-      _errorMessage.classList.remove( "hidden" );
-      _addMediaPanel.classList.add( "invalid-field" );
-    }, MEDIA_LOAD_TIMEOUT );
-    MediaUtils.getMetaData( data.source, onSuccess, onDenied );
+    _errorMessage.innerHTML = error;
+    _errorMessage.classList.remove( "hidden" );
+    _addMediaPanel.classList.add( "invalid-field" );
+    setTimeout( function() {
+      _errorMessage.classList.add( "hidden" );
+    }, 3000 );
   }
 
   function onFocus() {
@@ -299,7 +309,7 @@ define( [ "util/lang", "util/uri", "util/keys", "util/mediatypes", "editor/edito
       _loadingSpinner.classList.remove( "hidden" );
     }, 300 );
     _addBtn.classList.add( "hidden" );
-    addAllMediaToGallery( _urlInput.value, onDenied );
+    addAllMediaToGallery( _urlInput.value );
   }
 
   function setup() {
@@ -337,7 +347,6 @@ define( [ "util/lang", "util/uri", "util/keys", "util/mediatypes", "editor/edito
 
     setBaseDuration( newMediaDuration );
     _media.duration = newMediaDuration;
-
 
     // Then add clips
     $galleryList.each(function() {
