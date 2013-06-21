@@ -361,7 +361,7 @@ define( [ "util/lang", "util/uri", "util/keys", "util/mediatypes", "editor/edito
       $(this).data("hasTrackEvent", true);
       // Add secturity margin to prevent the system to add trackevents
       // in a different track
-      lastStart = lastEnd + 0.001;
+      lastStart = lastEnd + 0.01;
     });
 
     function addTrackEvent(data) {

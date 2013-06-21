@@ -313,13 +313,13 @@
     },
 
     _teardown: function( options ) {
-      if ( options._tocNewLi ) {
-        // Remove entry only if no child list is associated
-        //if( $( options._tocNewLi ).find("ol").length == 0 ) {
-          $( options._tocNewLi ).remove();
-        //}
+      if ( options._target ) {
+        options._target.removeChild( options._container );
       }
 
+      if ( options._fontSheet ) {
+        document.head.removeChild( options._fontSheet );
+      }
     }
   });
 }( window.Popcorn ));

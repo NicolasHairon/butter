@@ -113,7 +113,7 @@ define([ "editor/editor", "editor/base-editor", "util/lang", "util/keys", "util/
       var $tocEditorItem = $( e.target.parentNode ),
         trackEvent = $tocEditorItem.data("trackEvent");
 
-      if( trackEvent !== undefined ) {
+      if( trackEvent !== undefined && trackEvent.track !== undefined) {
         trackEvent.track.removeTrackEvent(trackEvent);
       }
 
@@ -388,7 +388,7 @@ define([ "editor/editor", "editor/base-editor", "util/lang", "util/keys", "util/
       editorElement = getEditorTocItem( trackEvent );
 
       // If track event is beeing draged or resized, don't allow deletion
-      if( trackEvent.selected ) {
+      if( trackEvent.selected || trackEvent.dragging || trackEvent.resizing ) {
         return;
       }
 
@@ -647,7 +647,7 @@ define([ "editor/editor", "editor/base-editor", "util/lang", "util/keys", "util/
 
               if(_rendered) {
                 updateTrackEvent( $this.parent() );
-                render();
+                //render();
               }
               if( $nextDiv.length > 0 ) {
                 $( $nextDiv[0] ).focus();
