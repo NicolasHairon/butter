@@ -91,17 +91,7 @@ define([ "editor/editor", "editor/base-editor", "util/lang", "util/keys", "util/
         deleteBtn = newTocItem.querySelector( ".toc-item-delete" ),
         label;
 
-      deleteBtn.addEventListener( "click", function(e) {
-        var $tocItem = $( newTocItem ),
-            trackEvent = $tocItem.data("trackEvent");
-
-        if( trackEvent !== undefined ) {
-          trackEvent.track.removeTrackEvent( trackEvent );
-        }
-
-        $tocItem.removeData("trackEvent");
-        $tocItem.remove();
-      }, false );
+      deleteBtn.addEventListener( "click", onDeleteBtnClick, false );
 
       if( seqTrackEvent !== undefined ) {
         $(newTocItem).data("seqTrackEvent", seqTrackEvent);
@@ -117,6 +107,18 @@ define([ "editor/editor", "editor/base-editor", "util/lang", "util/keys", "util/
       _editorList.appendChild( newTocItem );
 
       _count++;
+    }
+
+    function onDeleteBtnClick(e) {
+      var $tocEditorItem = $( e.target.parentNode ),
+        trackEvent = $tocEditorItem.data("trackEvent");
+
+      if( trackEvent !== undefined ) {
+        trackEvent.track.removeTrackEvent(trackEvent);
+      }
+
+      $tocEditorItem.removeData("trackEvent");
+      $tocEditorItem.remove();
     }
 
     function addEditorTocItemFromSequence( seqTrackEvent ) {
@@ -593,16 +595,7 @@ define([ "editor/editor", "editor/base-editor", "util/lang", "util/keys", "util/
 
           trackEvent = _media.findTrackWithTrackEventId( trackEventId ).trackEvent;
 
-          deleteBtn.addEventListener( "click", function(e) {
-            var trackEvent = $editorTocItem.data("trackEvent");
-
-            if( trackEvent !== undefined ) {
-              trackEvent.track.removeTrackEvent(trackEvent);
-            }
-
-            $editorTocItem.removeData("trackEvent");
-            $editorTocItem.remove();
-          }, false );
+          deleteBtn.addEventListener( "click", onDeleteBtnClick, false );
 
           _tocEditorDiv.classList.add("visible");
           _clearBtn.classList.add("visible");
@@ -624,7 +617,6 @@ define([ "editor/editor", "editor/base-editor", "util/lang", "util/keys", "util/
           // Update start and end time in editor element inputs
           updateEditorTocItem( trackEvent );
           
-        
           if( tocItemSubList !== undefined) {
             var childEditorList = document.createElement( "ol" );
             editorTocItem.appendChild( childEditorList );
