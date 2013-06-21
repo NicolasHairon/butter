@@ -699,7 +699,7 @@
                 if ( tempClipData.hasOwnProperty( key ) ) {
                   source = tempClipData[ key ];
                   if ( !_clipData[ source ] ) {
-                    _clipData[ source ] = source;
+                    _clipData[ key ] = source;
                   }
                 }
               }
