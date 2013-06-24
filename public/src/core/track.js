@@ -2,8 +2,8 @@
  * If a copy of the MIT license was not distributed with this file, you can
  * obtain one at https://raw.github.com/mozilla/butter/master/LICENSE */
 
-define( [ "./eventmanager", "./trackevent", "./views/track-view", "util/sanitizer" ],
-        function( EventManager, TrackEvent, TrackView, Sanitizer ){
+define( [ "./eventmanager", "./trackevent", "./views/track-view", "util/sanitizer", "util/time" ],
+        function( EventManager, TrackEvent, TrackView, Sanitizer, TimeUtils ){
 
   var __guid = 0,
       NAME_PREFIX = "Layer ",
@@ -154,6 +154,15 @@ define( [ "./eventmanager", "./trackevent", "./views/track-view", "util/sanitize
         } //if
       } //for
     }; //getTrackEventByName
+
+    this.getTrackEventByTime = function( start, end ){
+      for ( var i=0, l=_trackEvents.length; i<l; ++i) {
+        if( _trackEvents[ i ].popcornOptions.start === TimeUtils.toSeconds(start)
+            && _trackEvents[ i ].popcornOptions.end === TimeUtils.toSeconds(end) ) {
+          return _trackEvents[ i ];
+        } //if
+      } //for
+    }; //getTrackEventById
 
     function trackEventUpdateNotificationHandler( notification ) {
       var trackEvent = notification.origin,

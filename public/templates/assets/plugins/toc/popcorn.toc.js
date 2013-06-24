@@ -177,7 +177,6 @@
           innerContainer = document.createElement( "div" ),
           innerSpan = document.createElement( "span" ),
           innerDiv = document.createElement( "div" ),
-          innerUl = document.createElement( "ul" ),
           fontSheet,
           fontDecorations = options.fontDecorations || options._natives.manifest.options.fontDecorations[ "default" ],
           position = options.position || options._natives.manifest.options.position[ "default" ],
@@ -204,7 +203,6 @@
 
       // innerDiv inside innerSpan is to allow zindex from layers to work properly.
       // if you mess with this code, make sure to check for zindex issues.
-      innerDiv.appendChild( innerUl );
       innerSpan.appendChild( innerDiv );
       innerContainer.appendChild( innerSpan );
       container.appendChild( innerContainer );

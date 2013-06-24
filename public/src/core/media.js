@@ -291,6 +291,18 @@
         } //for
       }; //findTrackWithTrackEventId
 
+      this.findTrackEventByTime = function( start, end ){
+        for( var i=0, l=_tracks.length; i<l; ++i ){
+          var te = _tracks[ i ].getTrackEventByTime( start, end );
+          if( te ){
+            return {
+              track: _tracks[ i ],
+              trackEvent: te
+            };
+          }
+        } //for
+      }; //findTrackEventByTime
+
       this.getManifest = function( name ) {
         return _registry[ name ];
       }; //getManifest

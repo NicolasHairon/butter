@@ -15,6 +15,5 @@ EditorHelper.addPlugin( "toc", function( trackEvent ) {
         handlePositions: "e,w"
       });
     }
-    //EditorHelper.contentEditable( trackEvent, _container.querySelectorAll( "span" ) );
   }
 });

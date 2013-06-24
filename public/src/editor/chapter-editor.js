@@ -405,11 +405,15 @@ define([ "editor/editor", "editor/base-editor", "util/lang", "util/keys", "util/
         var chapterStart = start,
           chapterStep = duration/subListItems.length,
           chapterEnd = start+chapterStep,
-          levelTrack = $(subListItems).data("track");
+          levelTrack = $(editorList).data("track");
 
         if( levelTrack === undefined ) {
           levelTrack = _media.insertTrackAfter( parentTrack );
-          $(subListItems).data("track", levelTrack);
+          $(editorList).data("track", levelTrack);
+        }
+        else {
+
+          null;
         }
 
         subListItems.each(function() {
@@ -536,7 +540,8 @@ define([ "editor/editor", "editor/base-editor", "util/lang", "util/keys", "util/
     }*/
 
     function loadTracks() {
-      var tracks = _media.tracks;
+      var tracks = _media.tracks,
+        firstLevelTrack;
 
       for(var i = 0; i < _media.tracks.length; i++) {
         var track = tracks[i];
@@ -548,17 +553,29 @@ define([ "editor/editor", "editor/base-editor", "util/lang", "util/keys", "util/
             break;
           }
         }
+
+        for(var j = 0; j < track.trackEvents.length; j++) {
+          var trackEvent = track.trackEvents[j];
+          if( trackEvent.type == "chapter" && trackEvent.popcornOptions.level===1) {
+            firstLevelTrack = track;
+          }
+        }
       }
 
       if( !_tocTrackEvent ) {
         return;
       }
 
+      $(_tocEditorDiv).data("track", firstLevelTrack);
+
       // Editor list item generation is based on json list
       var jsonList = _tocTrackEvent.popcornOptions.jsonml;
 
       // Load editor to list
       loadChapterTrack( _editorList, jsonList );
+
+      // Workaround: render to enable right class on track events
+      updateTocTrackEvent();
 
       _loaded = true;
     }
@@ -586,14 +603,23 @@ define([ "editor/editor", "editor/base-editor", "util/lang", "util/keys", "util/
             contentDiv = editorTocItem.querySelector( ".toc-item-content" ),
             deleteBtn = editorTocItem.querySelector( ".toc-item-delete" ),
             trackEvent,
-            trackEventId = tocItemLink[1]["data-trackevent-id"];
+            trackEventId = tocItemLink[1]["data-trackevent-id"],
+            trackEventStart = tocItemLink[1]["data-start"],
+            trackEventEnd = tocItemLink[1]["data-end"];
 
           // If no link to track event, move to next item
           if( !trackEventId ) {
             continue;
           }
 
-          trackEvent = _media.findTrackWithTrackEventId( trackEventId ).trackEvent;
+          //var result = _media.findTrackWithTrackEventId( trackEventId );
+          var result = _media.findTrackEventByTime( trackEventStart, trackEventEnd );
+          if( result !== undefined ) {
+            trackEvent = result.trackEvent;
+          }
+          else {
+            continue;
+          }
 
           deleteBtn.addEventListener( "click", onDeleteBtnClick, false );
 
