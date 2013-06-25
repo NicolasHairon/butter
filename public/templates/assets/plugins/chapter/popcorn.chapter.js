@@ -3,7 +3,7 @@
 (function ( Popcorn ) {
 
   /**
-   * chapter Popcorn plug-in
+   * text Popcorn plug-in
    * Based on popcorn.text.js by @humph
    * @param {Object} options
    *
@@ -13,8 +13,7 @@
 
   var DEFAULT_FONT_COLOR = "#000000",
       DEFAULT_SHADOW_COLOR = "#444444",
-      DEFAULT_BACKGROUND_COLOR = "#888888",
-      CHAPTER_DISPLAY_TIME = 5;
+      DEFAULT_BACKGROUND_COLOR = "#888888";
 
   function newlineToBreak( string ) {
     // Deal with both \r\n and \n
@@ -30,23 +29,15 @@
         author: "@k88hudson, @mjschranz"
       },
       options: {
-        start: {
-          elem: "input",
-          type: "number",
-          label: "In",
-          "units": "seconds"
-        },
-        end: {
-          elem: "input",
-          type: "number",
-          label: "Out",
-          "units": "seconds"
-        },
         text: {
+          elem: "textarea",
+          label: "Text",
+          "default": "Popcorn Maker"
+        },
+        linkUrl: {
           elem: "input",
           type: "text",
-          label: "Label",
-          "default": "New label"
+          label: "Link URL"
         },
         level: {
           elem: "input",
@@ -59,7 +50,7 @@
           options: [ "Custom", "Middle", "Bottom", "Top" ],
           values: [ "custom", "middle", "bottom", "top" ],
           label: "Text Position",
-          "default": "top"
+          "default": "custom"
         },
         alignment: {
           elem: "select",
@@ -67,6 +58,20 @@
           values: [ "center", "left", "right" ],
           label: "Text Alignment",
           "default": "left"
+        },
+        start: {
+          elem: "input",
+          type: "text",
+          label: "In",
+          group: "advanced",
+          "units": "seconds"
+        },
+        end: {
+          elem: "input",
+          type: "text",
+          label: "Out",
+          group: "advanced",
+          "units": "seconds"
         },
         transition: {
           elem: "select",
@@ -81,7 +86,7 @@
           styleClass: "",
           googleFonts: true,
           group: "advanced",
-          "default": "Open Sans"
+          "default": "Merriweather"
         },
         fontSize: {
           elem: "input",
@@ -163,7 +168,7 @@
     },
 
     _setup: function( options ) {
-      var target,
+      var target = Popcorn.dom.find( options.target ),
           text = newlineToBreak( options.text ),
           level = options.level,
           container = options._container = document.createElement( "div" ),
@@ -181,13 +186,10 @@
           backgroundColor = options.backgroundColor || DEFAULT_BACKGROUND_COLOR,
           context = this;
 
-      // Get toc target DOM object
-      if ( options.target ) {
-        // Try to use supplied target
-        target = Popcorn.dom.find( options.target );
+      if ( !target ) {
+        target = this.media.parentNode;
       }
 
-      // Cache reference to actual target
       options._target = target;
       container.style.position = "absolute";
       container.classList.add( "popcorn-text" );
@@ -220,25 +222,12 @@
       innerContainer.style.fontStyle = fontDecorations.italics ? "italic" : "normal";
       innerContainer.style.fontWeight = fontDecorations.bold ? "bold" : "normal";
 
-     if ( options.background ) {
+      if ( options.background ) {
         innerDiv.style.backgroundColor = backgroundColor;
       }
       if ( options.shadow ) {
         innerDiv.style.textShadow = "0 1px 5px " + shadowColor + ", 0 1px 10px " + shadowColor;
       }
-
-      if( level==2 ) {
-        innerDiv.style.marginTop = options.fontSize+"%";
-      }
-      else if( level==3 ) {
-        innerDiv.style.marginTop = 2*options.fontSize+"%";
-      }
-
-      // Escape HTML text if requested
-      text = !!options.escape ? escapeHTML( options.text ) : options.text;
-
-      // Swap newline for <br> if requested
-      text = !!options.multiline ? newlineToBreak ( text ) : text;
 
       fontSheet = document.createElement( "link" );
       fontSheet.rel = "stylesheet";
@@ -247,7 +236,6 @@
       // Store reference to generated sheet for removal later, remove any existing ones
       options._fontSheet = fontSheet;
       document.head.appendChild( fontSheet );
-
       fontSheet.onload = function () {
         innerContainer.style.fontFamily = options.fontFamily;
         innerContainer.style.fontSize = (4-level)/2*options.fontSize + "%";
@@ -299,16 +287,24 @@
     },
 
     start: function( event, options ) {
-      if ( options._transitionContainer ) {
-        options._transitionContainer.classList.add( "on" );
-        options._transitionContainer.classList.remove( "off" );
+      var transitionContainer = options._transitionContainer,
+          redrawBug;
+
+      if ( transitionContainer ) {
+        transitionContainer.classList.add( "on" );
+        transitionContainer.classList.remove( "off" );
+
+        // Safari Redraw hack - #3066
+        transitionContainer.style.display = "none";
+        redrawBug = transitionContainer.offsetHeight;
+        transitionContainer.style.display = "";
       }
     },
 
     end: function( event, options ) {
       if ( options._transitionContainer ) {
-        options._transitionContainer.classList.add( "off" );
         options._transitionContainer.classList.remove( "on" );
+        options._transitionContainer.classList.add( "off" );
       }
     },
 

@@ -183,6 +183,13 @@
             onKeyDown,
             onMouseDown;
 
+        function createHelper( suffix ) {
+          var el = document.createElement( "div" );
+          el.classList.add( "ui-draggable-handle" );
+          el.classList.add( "ui-draggable-" + suffix );
+          return el;
+        }
+
         updateText = function() {
           newText = "";
           for ( var i = 0, l = contentContainers.length; i < l; i++ ) {

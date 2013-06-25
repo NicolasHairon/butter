@@ -126,11 +126,13 @@ define( [ "./logger", "./eventmanager", "./observer",
      *
      * Updates the event properties and runs sanity checks on input.
      *
-     * @param {Object} updateOptions: Object containing plugin-specific properties to be updated for this TrackEvent.
+     * @param {Object} updateOptions: Object containing plugin-specific properties
+     * to be updated for this TrackEvent.
+     * @param boolean force: force update if asked.
      * @event trackeventupdated: Occurs when an update operation succeeded.
      * @throws TrackEventUpdateException: When an update operation failed because of conflicting times or other serious property problems.
      */
-    this.update = function( updateOptions ) {
+    this.update = function( updateOptions, force ) {
 
       var newStart,
           newEnd,
@@ -225,9 +227,10 @@ define( [ "./logger", "./eventmanager", "./observer",
       _popcornOptions.start = newStart;
       _popcornOptions.end = newEnd;
 
-      // if PopcornWrapper exists, it means we're connected properly to a Popcorn instance,
-      // and can update the corresponding Popcorn trackevent for this object
-      if ( _popcornWrapper && !preventUpdate ) {
+      // If PopcornWrapper exists, it means we're connected properly to a Popcorn instance,
+      // and can update the corresponding Popcorn trackevent for this object.
+      // If force is true, then force update.
+      if ( (_popcornWrapper && !preventUpdate) || force ) {
         _popcornWrapper.synchronizeEvent( _this, updateOptions );
       }
     };

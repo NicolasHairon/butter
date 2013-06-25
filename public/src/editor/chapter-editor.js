@@ -113,7 +113,7 @@ define([ "editor/editor", "editor/base-editor", "util/lang", "util/keys", "util/
       var $tocEditorItem = $( e.target.parentNode ),
         trackEvent = $tocEditorItem.data("trackEvent");
 
-      if( trackEvent !== undefined && trackEvent.track !== undefined) {
+      if( trackEvent !== undefined && trackEvent.track) {
         trackEvent.track.removeTrackEvent(trackEvent);
       }
 
@@ -200,7 +200,7 @@ define([ "editor/editor", "editor/base-editor", "util/lang", "util/keys", "util/
         popcornOptions.end   = TimeUtils.toSeconds( $element.find(".toc-item-time-end input").val() );
         popcornOptions.text  = $element.find(".toc-item-content:first").text();
         popcornOptions.level = ($element.parentsUntil("#toc-ol").length)/2+1;
-        trackEvent.update( popcornOptions );
+        trackEvent.update( popcornOptions, true );
         updateToc();
       }
     }
@@ -458,9 +458,7 @@ define([ "editor/editor", "editor/base-editor", "util/lang", "util/keys", "util/
             // Add track event in the timeline
             trackEvent.track.removeTrackEvent( trackEvent );
           }
-
           removeChapterTrackEvent( this );
-          
         });
       }
     }
@@ -522,6 +520,8 @@ define([ "editor/editor", "editor/base-editor", "util/lang", "util/keys", "util/
       _media.listen( "sequencetrackadded", onSequenceTrackAdded );
       _media.listen( "sequencetrackeventadded", onSequenceTrackEventAdded );
 
+      _tocDisplayList.classList.add('toc-list');
+
       if( !_loaded ) {
         loadTracks();
       }
@@ -538,6 +538,26 @@ define([ "editor/editor", "editor/base-editor", "util/lang", "util/keys", "util/
             window.getSelection().addRange(range);
         }
     }*/
+
+    function updateTrackEventsAfterLoading(editorList) {
+      // Update track events
+      var tocList = $(editorList).find("> ol > li");
+
+      if( tocList.length>0 ) {
+
+        for(var j = 0; j < tocList.length; j++) {
+          var trackEvent = $( tocList[j] ).data("trackEvent");
+
+          if( trackEvent !== undefined ) {
+            trackEvent.update();
+          }
+          updateTrackEventsAfterLoading( tocList[j] );
+        }
+      }
+
+      updateToc();
+
+    }
 
     function loadTracks() {
       var tracks = _media.tracks,
@@ -566,6 +586,7 @@ define([ "editor/editor", "editor/base-editor", "util/lang", "util/keys", "util/
         return;
       }
 
+      // Prevent createTrack
       $(_tocEditorDiv).data("track", firstLevelTrack);
 
       // Editor list item generation is based on json list
@@ -574,8 +595,8 @@ define([ "editor/editor", "editor/base-editor", "util/lang", "util/keys", "util/
       // Load editor to list
       loadChapterTrack( _editorList, jsonList );
 
-      // Workaround: render to enable right class on track events
-      updateTocTrackEvent();
+      // Workaround: render to enable dragging on toc
+      //render();
 
       _loaded = true;
     }
@@ -640,8 +661,9 @@ define([ "editor/editor", "editor/base-editor", "util/lang", "util/keys", "util/
           // Save trackevent associated to editor element
           $( editorTocItem ).data( "trackEvent", trackEvent );
 
-          // Update start and end time in editor element inputs
           updateEditorTocItem( trackEvent );
+          //trackEvent.dispatch( "trackeventupdated", trackEvent );
+          //updateTrackEvent( editorTocItem );
           
           if( tocItemSubList !== undefined) {
             var childEditorList = document.createElement( "ol" );
@@ -662,27 +684,23 @@ define([ "editor/editor", "editor/base-editor", "util/lang", "util/keys", "util/
 
         $('#toc-div').nestable({"maxDepth":3, "group":1});
 
-        $('#toc-div')/*.on('focus', '.dd3-content', function(event) {
-            selectText( this );
-        })*/
-        .on('keypress', '.toc-item-content[contenteditable]', function(event) {
+        $('#toc-div').on('keypress', '.toc-item-content[contenteditable]',
+        function(event) {
             if(event.keyCode === KeysUtils.ENTER) {
               event.preventDefault();
               var $this = $(this),
                   $nextDiv = $this.parent().next().children(".dd3-content");
 
-              if(_rendered) {
+              //if(_rendered) {
                 updateTrackEvent( $this.parent() );
                 //render();
-              }
+              //}
               if( $nextDiv.length > 0 ) {
                 $( $nextDiv[0] ).focus();
               }
 
             }
         });
-
-        _tocDisplayList.classList.add('toc-list');
 
       },
       close: function() {
