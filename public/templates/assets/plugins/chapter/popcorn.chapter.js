@@ -50,7 +50,7 @@
           options: [ "Custom", "Middle", "Bottom", "Top" ],
           values: [ "custom", "middle", "bottom", "top" ],
           label: "Text Position",
-          "default": "custom"
+          "default": "top"
         },
         alignment: {
           elem: "select",
@@ -86,7 +86,7 @@
           styleClass: "",
           googleFonts: true,
           group: "advanced",
-          "default": "Merriweather"
+          "default": "Open Sans"
         },
         fontSize: {
           elem: "input",

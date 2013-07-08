@@ -1,7 +1,8 @@
 /*********************************************************
 * HEADER
 */
-@_logoWidth: 245px;
+@_logoHeight: 38px;
+@_logoWidth: 100px;
 
 // Used to position absolute elements in the middle of our header bar area
 @HEADER_ALIGN_MIDDLE: 2.7;
@@ -45,11 +46,11 @@
 
 .butter-logo {
   position: absolute;
-  top: 0;
+  top: 10px;
   left: 30px;
-  height: 62px;
+  height: @_logoHeight;
   width: @_logoWidth;
-  /*background: url( "../resources/logo.png" ) no-repeat;*/
+  background: url( "../resources/logo_claire_100.png" ) no-repeat;
 }
 
 .butter-nav {

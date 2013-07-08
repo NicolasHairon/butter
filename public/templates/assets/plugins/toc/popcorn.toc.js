@@ -95,7 +95,7 @@
           elem: "input",
           type: "number",
           label: "Font Size",
-          "default": 4,
+          "default": 3,
           units: "%",
           group: "advanced"
         },
@@ -153,6 +153,22 @@
           type: "number",
           label: "Top",
           units: "%",
+          "default": 50,
+          hidden: true
+        },
+        right: {
+          elem: "input",
+          type: "number",
+          label: "Right",
+          units: "%",
+          "default": 0,
+          hidden: true
+        },
+        bottom: {
+          elem: "input",
+          type: "number",
+          label: "Bottom",
+          units: "%",
           "default": 0,
           hidden: true
         },
@@ -161,7 +177,7 @@
           type: "number",
           units: "%",
           label: "Width",
-          "default": 50,
+          "default": 25,
           hidden: true
         },
         zindex: {
@@ -244,7 +260,7 @@
         if ( position === "custom" ) {
           container.classList.add( "text-custom" );
           innerContainer.classList.add( alignment );
-          container.style.left = options.left + "%";
+          container.style.right = options.right + "%";
           container.style.top = options.top + "%";
           if ( options.width ) {
             container.style.width = options.width + "%";

@@ -9,6 +9,9 @@
 
 .text-inner-div a {
   text-decoration: none;
+  color: #000;
+  opacity: 0.6;
+
 }
 .text-inner-div a:after {
   content: "";
@@ -21,6 +24,7 @@
 }
 .text-inner-div a:hover {
   text-decoration: underline;
+  opacity: 0.8;
 }
 .text-inner-div a:hover:after {
   opacity: 1;

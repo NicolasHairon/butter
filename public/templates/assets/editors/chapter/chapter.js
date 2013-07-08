@@ -6,5 +6,5 @@ EditorHelper.addPlugin( "chapter", function( trackEvent ) {
 
   _container = trackEvent.popcornTrackEvent._container;
   target = trackEvent.popcornTrackEvent._target;
-  //EditorHelper.contentEditable( trackEvent, _container.querySelectorAll( "span" ) );
+  EditorHelper.contentEditable( trackEvent, _container.querySelectorAll( "span" ) );
 });

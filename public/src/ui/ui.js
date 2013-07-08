@@ -4,12 +4,12 @@
 
 define( [ "core/eventmanager", "./toggler",
           "./header", "./unload-dialog", "crashreporter",
-          "first-run", "./tray", "editor/ui-kit",
+          "first-run", "tutorial", "./tray", "editor/ui-kit",
           "core/trackevent", "dialog/dialog",
           "util/dragndrop" ],
   function( EventManager, Toggler, Header,
             UnloadDialog, CrashReporter,
-            FirstRun, Tray, UIKitDummy,
+            FirstRun, Tutorial, Tray, UIKitDummy,
             TrackEvent, Dialog,
             DragNDrop ){
 
@@ -123,6 +123,7 @@ define( [ "core/eventmanager", "./toggler",
 
 
             FirstRun.init();
+            Tutorial.init();
           }
 
           butter.listen( "mediaready", firstRunInit );
