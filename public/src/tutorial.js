@@ -18,10 +18,10 @@ define( [ "dialog/dialog", "ui/widget/tooltip" ], function( Dialog, ToolTip ) {
           tooltip,
           currentIndex = 0,
           steps,
-          stepNames,
-          tutorialDialogs = new Object(),
-          tutorialTooltips = new Object(),
-          tutorialHighlights,
+          //stepNames,
+          //tutorialDialogs = new Object(),
+          //tutorialTooltips = new Object(),
+          //tutorialHighlights,
           currentElement,
 
           mediaTooltip,
@@ -103,6 +103,8 @@ define( [ "dialog/dialog", "ui/widget/tooltip" ], function( Dialog, ToolTip ) {
             "message":"Collez ici une URL (ou plusieurs) de ressource(s) audio ou vidéo.",
             "top":"170px",
             "left":"170px",
+            "width":"120px",
+            "height":"100px",
             "hidden":true,
             "hover":false
           }
@@ -114,71 +116,6 @@ define( [ "dialog/dialog", "ui/widget/tooltip" ], function( Dialog, ToolTip ) {
           "overlay":false
         }
       ];
-
-
-      // Set tutorial dialog names
-      stepNames = new Array(
-        "tutorial-intro", 
-        "tutorial-parts",
-        "tutorial-controls",
-        "tutorial-panel",
-        "tutorial-timeline",
-        "tutorial-viewer",
-        "tutorial-first-edit"
-      );
-
-      tutorialHighlights = new Array(
-        null, 
-        null,
-        elementControls,
-        elementPanel,
-        elementTimeline,
-        elementViewer
-      );
-
-      function showTutorialTooltips() {
-        ToolTip.create({
-          name: "tooltip-media",
-          element: eventsEditorButtonMedia,
-          top: "60px",
-          message: "Nous allons d'abord importer des ressources multimédia.",
-          hidden: true
-        });
-
-        ToolTip.create({
-          name: "tooltip-media",
-          element: mediaInput,
-          top: "0px",
-          message: "<h3>Évènements</h3>Copiez-collez ici une ou plusieurs URLs relative à des resources audio ou vidéo.",
-          hidden: false
-        });
-
-
-        /*ToolTip.create({
-          name: "tooltip-events",
-          element: eventsEditorButtonEvents,
-          top: "60px",
-          message: "<h3>Évènements</h3>Augment your media with track events here!",
-          hidden: false
-        });
-
-        ToolTip.create({
-          name: "tooltip-chapter",
-          element: eventsEditorButtonChapter,
-          top: "60px",
-          message: "<h3>Éditeur de chapitrage</h3>",
-          hidden: false,
-          hover: false
-        });*/
-
-        ToolTip.get( "tooltip-media" );
-
-        document.body.addEventListener( "mousedown", function removeTooltips() {
-          mediaTooltip.hidden = true;
-          document.body.removeEventListener( "mousedown", removeTooltips, true );
-        }, true );
-
-      }
 
       /*function onDialogClose() {
         // Remove Listeners
@@ -213,18 +150,15 @@ define( [ "dialog/dialog", "ui/widget/tooltip" ], function( Dialog, ToolTip ) {
         document.body.classList.add( "tutorial" );
       }*/
 
-
-
       function closeDialog() {
         dialog.close();
       }
-
-
 
       function closeTooltip() {
         window.removeEventListener( "click", closeTooltip, false );
         tooltip.hidden = true;
         tooltip.hover = false;
+        tooltip = undefined;
 
         // Go to next tutorial step
         nextStep();
@@ -275,22 +209,20 @@ define( [ "dialog/dialog", "ui/widget/tooltip" ], function( Dialog, ToolTip ) {
         }
 
         // Remove Overlay
-        document.body.removeChild( overlayDiv );
+        if( steps[ currentIndex-1 ].overlay ) {
+          document.body.removeChild( overlayDiv );
+        }
       }
 
 
 
       function setupTutorial() {
-        for (var i = 0; i < stepNames.length; i++) {
-          var name = stepNames[i];
-          tutorialDialogs[ name ] = Dialog.spawn( name );
-        }
-
         for (var i = 0; i < steps.length; i++) {
           var step = steps[i],
             name,
             type,
-            elem;
+            elem,
+            options = new Object();
           name = step.name;
           type = step.type;
           elem = step.elem;
@@ -299,14 +231,18 @@ define( [ "dialog/dialog", "ui/widget/tooltip" ], function( Dialog, ToolTip ) {
             step.dialog = Dialog.spawn( name );
           }
           else if(type=="tooltip") {
-            step.tooltip = ToolTip.create({
-              name: name,
-              element: elem,
-              top: step.param.top,
-              left: step.param.left,
-              message: step.param.message,
-              hidden: step.param.hidden
-            });
+            if(step.param.top) options.top = step.param.top;
+            if(step.param.left) options.left = step.param.left;
+            if(step.param.width) options.width = step.param.width;
+            if(step.param.height) options.height = step.param.height;
+            if(step.param.hidden) options.hover = step.param.hidden;
+            if(step.param.hover) options.hover = step.param.hover;
+
+            options.name = name;
+            options.element = elem;
+            options.message = step.param.message;
+
+            step.tooltip = ToolTip.create( options );
           }
         }
         document.body.classList.add( "tutorial" );
@@ -317,7 +253,10 @@ define( [ "dialog/dialog", "ui/widget/tooltip" ], function( Dialog, ToolTip ) {
           return;
         }
 
-        var step = steps[ currentIndex ];
+        var step = steps[ currentIndex ],
+          stepperElem = step.stepperElem || window,
+          stepperEvent = step.stepperEvent || "click",
+          stepperFunc = step.stepperFunc;
 
         currentElement = step.elem;
 
@@ -329,36 +268,17 @@ define( [ "dialog/dialog", "ui/widget/tooltip" ], function( Dialog, ToolTip ) {
           dialog = step.dialog;
           dialog.open( false );
           dialog.listen( "close", onTutorialDialogClose );
-          window.addEventListener( "click", closeDialog, false );
+          if( !stepperFunc ) stepperFunc = closeDialog;
         }
         else if( step.type=="tooltip" ) {
           tooltip = step.tooltip;
-          tooltip.hidden = false;
-          window.addEventListener( "click", closeTooltip, false );
+          ToolTip.get(step.name).hidden = false;
+          if( !stepperFunc ) stepperFunc = closeTooltip;
         }
+        stepperElem.addEventListener( stepperEvent, stepperFunc, false );
 
         currentIndex++;
 
-      }
-
-      function nextTip() {
-        if( currentIndex == stepNames.length) {
-          showTutorialTooltips();
-          return;
-        }
-
-        // Add overlay
-
-        dialog = tutorialDialogs[ stepNames[ currentIndex ] ];
-        currentElement = tutorialHighlights[ currentIndex ];
-
-        addOverlay( currentElement );
-
-        dialog.open( false );
-        dialog.listen( "close", onTutorialDialogClose );
-        //dialog.listen( "close", onDialogClose );
-
-        currentIndex++;
       }
 
       function resetTutorials() {

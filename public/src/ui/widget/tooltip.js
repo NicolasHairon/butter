@@ -35,6 +35,8 @@ define( [], function() {
         message,
         top,
         left,
+        width,
+        height,
         error,
         destroyed = false,
         tooltipElement = document.createElement( "div" );
@@ -109,6 +111,32 @@ define( [], function() {
       enumerable: true
     });
 
+    Object.defineProperty( this, "width", {
+      get: function() {
+        return width;
+      },
+      set: function( newWidth ) {
+        if ( parentElement && newWidth && typeof newWidth === "string" ) {
+          width = newWidth;
+          tooltipElement.style.width = newWidth;
+        }
+      },
+      enumerable: true
+    });
+
+    Object.defineProperty( this, "height", {
+      get: function() {
+        return height;
+      },
+      set: function( newHeight ) {
+        if ( parentElement && newHeight && typeof newHeight === "string" ) {
+          height = newHeight;
+          tooltipElement.style.height = newHeight;
+        }
+      },
+      enumerable: true
+    });
+
     Object.defineProperty( this, "tooltipElement", {
       get: function() {
         return tooltipElement;
@@ -177,6 +205,8 @@ define( [], function() {
     this.parent = options.element;
     this.top = options.top || parentElement.getBoundingClientRect().height + "px";
     this.left = options.left || "50%";
+    this.width = options.width || "inherit";
+    this.height = options.height || "inherit";
     this.message = options.message || parentElement.getAttribute( "data-tooltip" ) || parentElement.getAttribute( "title" ) || "";
     this.hidden = options.hidden;
     this.hover = options.hover;
