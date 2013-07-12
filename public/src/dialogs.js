@@ -18,5 +18,7 @@ define([
   "dialog/dialogs/tutorial-timeline",
   "dialog/dialogs/tutorial-viewer",
   "dialog/dialogs/tutorial-first-edit",
-  "dialog/dialogs/tutorial-add-media-url-samples"
+  "dialog/dialogs/tutorial-add-media-url-samples",
+  "dialog/dialogs/tutorial-add-media-import",
+  "dialog/dialogs/tutorial-add-media-added"
 ], function() {} );

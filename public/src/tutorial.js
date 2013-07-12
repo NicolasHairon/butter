@@ -43,7 +43,7 @@ define( [ "dialog/dialog", "ui/widget/tooltip" ], function( Dialog, ToolTip ) {
           mediaInput = document.querySelector( ".add-media-input" );
 
       steps = [
-        {
+        /*{
           "name":"tutorial-intro",
           "type":"dialog",
           "elem":null,
@@ -84,15 +84,6 @@ define( [ "dialog/dialog", "ui/widget/tooltip" ], function( Dialog, ToolTip ) {
           "type":"dialog",
           "elem":null,
           "overlay":true
-        },
-        /*{
-          "name":"tutorial-add-media",
-          "type":"tooltip",
-          "elem":document.querySelector( ".butter-editor-header-media" ),
-          "overlay":false,
-          "param":{
-            "message":"Copiez-collez ici une ou plusieurs URLs relative à des resources audio ou vidéo, séparées par des espaces ou des retours à la ligne."
-          }
         },*/
         {
           "name":"tutorial-add-media-panel",
@@ -100,7 +91,7 @@ define( [ "dialog/dialog", "ui/widget/tooltip" ], function( Dialog, ToolTip ) {
           "elem":document.querySelector( ".butter-editor-body" ),
           "overlay":false,
           "param":{
-            "message":"Collez ici une URL (ou plusieurs) de ressource(s) audio ou vidéo.",
+            "message":"Cliquez ici pour afficher une liste exemple de ressources vidéo.",
             "top":"170px",
             "left":"170px",
             "width":"120px",
@@ -112,15 +103,45 @@ define( [ "dialog/dialog", "ui/widget/tooltip" ], function( Dialog, ToolTip ) {
         {
           "name":"tutorial-add-media-url-samples",
           "type":"dialog",
+          "elem":document.querySelector( ".add-media-input" ),
+          "overlay":false,
+          "closeElem":document.querySelector( ".butter-editor-body" )
+        },
+        {
+          "name":"tutorial-add-media-import",
+          "type":"dialog",
           "elem":null,
-          "overlay":false
-        }
+          "overlay":false,
+          "openElem":document.querySelector( ".add-media-btn"),
+          "closeElem":document.querySelector( ".add-all-btn" )
+        },
+        {
+          "name":"tutorial-add-media-added",
+          "type":"dialog",
+          "elem":null,
+          "overlay":false,
+          "closeElem":document.querySelector( ".butter-dialog-body" ),
+          "closeUseCapture":true // Set to true in order to avoid close event
+        }/*,
+        {
+          "name":"tutorial-import-resources",
+          "type":"tooltip",
+          "elem":document.querySelector( ".add-all-btn" ),
+          "openElem":document.querySelector( ".add-media-btn"),
+          "param":{
+            "message":"Cliquez ici pour ajouter séquentiellement les ressources importées dans la timeline.",
+            "top":"170px",
+            "left":"170px",
+            "hidden":true,
+            "hover":false
+          }
+        }*/
       ];
 
-      /*function onDialogClose() {
+      /*function afterDialogClose() {
         // Remove Listeners
-        dialog.unlisten( "close", onDialogClose );
-        window.removeEventListener( "click", closeDialog, false );
+        dialog.unlisten( "close", afterDialogClose );
+        window.removeEventListener( "click", onDialogClose, false );
 
         // Remove Classes
         //eventsEditorButton.classList.remove( "overlay-highlight" );
@@ -143,48 +164,71 @@ define( [ "dialog/dialog", "ui/widget/tooltip" ], function( Dialog, ToolTip ) {
         document.body.appendChild( overlayDiv );
 
         // Add Listener
-        window.addEventListener( "click", closeDialog, false );
+        window.addEventListener( "click", onDialogClose, false );
 
         // Add Classes
         //mediaInput.classList.add( "overlay-highlight" );
         document.body.classList.add( "tutorial" );
       }*/
 
-      function closeDialog() {
+
+      function onDialogClose(e) {
         dialog.close();
       }
 
-      function closeTooltip() {
-        window.removeEventListener( "click", closeTooltip, false );
+      function onTooltipClose(e) {
         tooltip.hidden = true;
         tooltip.hover = false;
-        tooltip = undefined;
-
-        // Go to next tutorial step
-        nextStep();
-      }
-
-      function onDialogClose() {
-        // Remove Listeners
-        dialog.unlisten( "close", onDialogClose );
-        window.removeEventListener( "click", closeDialog, false );
+        afterTooltipClose();
       }
 
 
+      function onStepClose( closeFunc ) {
+        var step = steps[currentIndex-1],
+          closeElem = step.closeElem || window,
+          closeEvent = step.closeEvent || "click",
+          closeUseCapture = step.closeUseCapture || false;
 
+        closeElem.removeEventListener( closeEvent, closeFunc, closeUseCapture );
+      }
 
+      function afterTooltipClose() {
+        var step = steps[currentIndex-1],
+          closeFunc = step.closeFunc || onTooltipClose;
+        // Remove close event listeners
+        onStepClose(closeFunc);
 
+        scheduleNextStep();
+      }
 
-      function onTutorialDialogClose() {
-        // Remove Listeners
-        dialog.unlisten( "close", onTutorialDialogClose );
-        window.removeEventListener( "click", closeDialog, false );
+      function afterDialogClose() {
+        var step = steps[currentIndex-1],
+          closeFunc = step.closeFunc || onDialogClose;
+        // Remove close event listeners
+        onStepClose(closeFunc);
+        dialog.unlisten( "close", afterDialogClose );
 
-        // Remove Classes
+        // Remove overlay if needed
         removeOverlay( currentElement );
 
-        // Go to next tutorial step
-        nextStep();
+        scheduleNextStep();
+      }
+
+      function scheduleNextStep() {
+        if( currentIndex == steps.length) {
+          return;
+        }
+
+        var step = steps[currentIndex],
+          openElem = step.openElem,
+          openEvent = step.openEvent || "click";
+
+        if( openElem ) {
+          openElem.addEventListener( openEvent, nextStep, false );
+        }
+        else {
+          nextStep();
+        }
       }
 
 
@@ -249,14 +293,30 @@ define( [ "dialog/dialog", "ui/widget/tooltip" ], function( Dialog, ToolTip ) {
       }
 
       function nextStep() {
+        // If step list is done, exit
         if( currentIndex == steps.length) {
           return;
         }
 
         var step = steps[ currentIndex ],
-          stepperElem = step.stepperElem || window,
-          stepperEvent = step.stepperEvent || "click",
-          stepperFunc = step.stepperFunc;
+          openElem = step.openElem,
+          openEvent = step.openEvent || "click",
+          closeElem = step.closeElem || window,
+          closeEvent = step.closeEvent || "click",
+          closeFunc = step.closeFunc,
+          closeUseCapture = step.closeUseCapture || false;
+
+        // Remove opening event listerner
+        if( currentIndex > 0 ) {
+          if( openElem ) {
+            openElem.removeEventListener( openEvent, nextStep, false );
+          }
+        }
+
+        var step = steps[ currentIndex ],
+          closeElem = step.closeElem || window,
+          closeEvent = step.closeEvent || "click",
+          closeFunc = step.closeFunc;
 
         currentElement = step.elem;
 
@@ -267,15 +327,15 @@ define( [ "dialog/dialog", "ui/widget/tooltip" ], function( Dialog, ToolTip ) {
         if( step.type=="dialog" ) {
           dialog = step.dialog;
           dialog.open( false );
-          dialog.listen( "close", onTutorialDialogClose );
-          if( !stepperFunc ) stepperFunc = closeDialog;
+          dialog.listen( "close", afterDialogClose );
+          if( !closeFunc ) closeFunc = onDialogClose;
         }
         else if( step.type=="tooltip" ) {
           tooltip = step.tooltip;
           ToolTip.get(step.name).hidden = false;
-          if( !stepperFunc ) stepperFunc = closeTooltip;
+          if( !closeFunc ) closeFunc = onTooltipClose;
         }
-        stepperElem.addEventListener( stepperEvent, stepperFunc, false );
+        closeElem.addEventListener( closeEvent, closeFunc, closeUseCapture );
 
         currentIndex++;
 
@@ -294,12 +354,12 @@ define( [ "dialog/dialog", "ui/widget/tooltip" ], function( Dialog, ToolTip ) {
 
         if ( !data || window.location.search.match( "tutorial" ) ) {
           __butterStorage.setItem( "butter-first-run", true );
+
+          $(".next-step-btn").click(function(){
+            nextStep();
+          })
           setupTutorial();
           nextStep();
-          //showTutorialTooltips();
-          /*dialog = Dialog.spawn( "tutorial" );
-          dialog.open( false );
-          dialog.listen( "close", onDialogClose );*/
         }
       } catch( e ) {}
     }
