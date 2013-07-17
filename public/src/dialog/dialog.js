@@ -273,7 +273,7 @@ define( [ "util/lang", "core/eventmanager", "./modal" ],
           setTimeout( function() {
             _external.focus();
           }, 0 );
-          document.addEventListener( "keydown", onKeyDown, false );
+          //document.addEventListener( "keydown", onKeyDown, false );
           _internal.dispatch( "open" );
           _external.dispatch( "open" );
         },
@@ -294,7 +294,7 @@ define( [ "util/lang", "core/eventmanager", "./modal" ],
           }
           _modal.destroy();
           _modal = null;
-          document.removeEventListener( "keydown", onKeyDown, false );
+          //document.removeEventListener( "keydown", onKeyDown, false );
           _internal.dispatch( "close" );
           _external.dispatch( "close" );
         },

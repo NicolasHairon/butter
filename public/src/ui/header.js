@@ -164,7 +164,7 @@ define([ "dialog/dialog", "util/lang", "text!layouts/header.html", "ui/user-data
         var isSaved = butter.project.isSaved;
 
         _projectTitle.style.display = "";
-        _saveButton.innerHTML = "Save";
+        _saveButton.innerHTML = "Sauver";
 
         togglePreviewButton( isSaved );
         toggleSaveButton( !isSaved );

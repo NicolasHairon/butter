@@ -43,7 +43,7 @@ define( [ "dialog/dialog", "ui/widget/tooltip" ], function( Dialog, ToolTip ) {
           mediaInput = document.querySelector( ".add-media-input" );
 
       steps = [
-        /*{
+        {
           "name":"tutorial-intro",
           "type":"dialog",
           "elem":null,
@@ -84,7 +84,7 @@ define( [ "dialog/dialog", "ui/widget/tooltip" ], function( Dialog, ToolTip ) {
           "type":"dialog",
           "elem":null,
           "overlay":true
-        },*/
+        },
         {
           "name":"tutorial-add-media-panel",
           "type":"tooltip",
@@ -122,8 +122,57 @@ define( [ "dialog/dialog", "ui/widget/tooltip" ], function( Dialog, ToolTip ) {
           "overlay":false,
           "closeElem":document.querySelector( ".butter-dialog-body" ),
           "closeUseCapture":true // Set to true in order to avoid close event
-        }/*,
+        },
         {
+          "name":"tutorial-edition-timeline",
+          "type":"dialog",
+          "elem":null,
+          "overlay":false,
+          "closeElem":document.querySelector( ".butter-dialog-body" ),
+          "closeUseCapture":true // Set to true in order to avoid close event
+        },
+        {
+          "name":"tutorial-edition-chapter-list",
+          "type":"dialog",
+          "elem":null,
+          "overlay":false,
+          "closeElem":document.querySelector( ".butter-dialog-body" ),
+          "closeUseCapture":true // Set to true in order to avoid close event
+        },
+        {
+          "name":"tutorial-edition-chapter-names",
+          "type":"dialog",
+          "elem":null,
+          "overlay":false,
+          "closeElem":document.querySelector( ".butter-dialog-body" ),
+          "closeUseCapture":false // Set to true in order to avoid close event
+        },
+        {
+          "name":"tutorial-edition-chapter-times",
+          "type":"dialog",
+          "elem":null,
+          "overlay":false,
+          "closeElem":document.querySelector( ".butter-dialog-body" ),
+          "closeUseCapture":true // Set to true in order to avoid close event
+        },
+        {
+          "name":"tutorial-edition-save-call",
+          "type":"dialog",
+          "elem":null,
+          "overlay":false,
+          "closeElem":document.querySelector( ".butter-nav" ),
+          "closeUseCapture":false // Set to true in order to avoid close event
+        },
+        {
+          "name":"tutorial-edition-save-done",
+          "type":"dialog",
+          "elem":null,
+          "overlay":false,
+          "openElem":document.querySelector( ".butter-nav" ),
+          "openEvent":"keydown",
+          "closeUseCapture":true // Set to true in order to avoid close event
+        }
+        /*{
           "name":"tutorial-import-resources",
           "type":"tooltip",
           "elem":document.querySelector( ".add-all-btn" ),
@@ -135,7 +184,22 @@ define( [ "dialog/dialog", "ui/widget/tooltip" ], function( Dialog, ToolTip ) {
             "hidden":true,
             "hover":false
           }
+        },*/
+        /*{
+          "name":"tutorial-edition-chapter-tab",
+          "type":"tooltip",
+          "elem":document.querySelector( ".butter-editor-header-chapter" ),
+          "overlay":false,
+          "param":{
+            "message":"Cliquez ici pour accéder à l'éditeur de chapitrage hiérachique du projet.",
+            "top":"0px",
+            "left":"0px",
+            "width":"120px",
+            "height":"100px"
+          }
         }*/
+
+        
       ];
 
       /*function afterDialogClose() {
@@ -185,9 +249,12 @@ define( [ "dialog/dialog", "ui/widget/tooltip" ], function( Dialog, ToolTip ) {
 
       function onStepClose( closeFunc ) {
         var step = steps[currentIndex-1],
-          closeElem = step.closeElem || window,
+          closeElem = step.closeElem,
           closeEvent = step.closeEvent || "click",
           closeUseCapture = step.closeUseCapture || false;
+
+        if( !closeElem && dialog ) closeElem = dialog.element;
+        else if ( !closeElem && tooltip ) closeElem = window;
 
         closeElem.removeEventListener( closeEvent, closeFunc, closeUseCapture );
       }
@@ -197,6 +264,8 @@ define( [ "dialog/dialog", "ui/widget/tooltip" ], function( Dialog, ToolTip ) {
           closeFunc = step.closeFunc || onTooltipClose;
         // Remove close event listeners
         onStepClose(closeFunc);
+
+        tooltip = null;
 
         scheduleNextStep();
       }
@@ -210,6 +279,8 @@ define( [ "dialog/dialog", "ui/widget/tooltip" ], function( Dialog, ToolTip ) {
 
         // Remove overlay if needed
         removeOverlay( currentElement );
+
+        dialog = null;
 
         scheduleNextStep();
       }
@@ -301,7 +372,7 @@ define( [ "dialog/dialog", "ui/widget/tooltip" ], function( Dialog, ToolTip ) {
         var step = steps[ currentIndex ],
           openElem = step.openElem,
           openEvent = step.openEvent || "click",
-          closeElem = step.closeElem || window,
+          closeElem = step.closeElem,
           closeEvent = step.closeEvent || "click",
           closeFunc = step.closeFunc,
           closeUseCapture = step.closeUseCapture || false;
@@ -314,7 +385,7 @@ define( [ "dialog/dialog", "ui/widget/tooltip" ], function( Dialog, ToolTip ) {
         }
 
         var step = steps[ currentIndex ],
-          closeElem = step.closeElem || window,
+          closeElem = step.closeElem,
           closeEvent = step.closeEvent || "click",
           closeFunc = step.closeFunc;
 
@@ -328,11 +399,13 @@ define( [ "dialog/dialog", "ui/widget/tooltip" ], function( Dialog, ToolTip ) {
           dialog = step.dialog;
           dialog.open( false );
           dialog.listen( "close", afterDialogClose );
+          if( !closeElem ) closeElem = dialog.element;
           if( !closeFunc ) closeFunc = onDialogClose;
         }
         else if( step.type=="tooltip" ) {
           tooltip = step.tooltip;
           ToolTip.get(step.name).hidden = false;
+          if( !closeElem ) closeElem = window;
           if( !closeFunc ) closeFunc = onTooltipClose;
         }
         closeElem.addEventListener( closeEvent, closeFunc, closeUseCapture );

@@ -20,5 +20,11 @@ define([
   "dialog/dialogs/tutorial-first-edit",
   "dialog/dialogs/tutorial-add-media-url-samples",
   "dialog/dialogs/tutorial-add-media-import",
-  "dialog/dialogs/tutorial-add-media-added"
+  "dialog/dialogs/tutorial-add-media-added",
+  "dialog/dialogs/tutorial-edition-timeline",
+  "dialog/dialogs/tutorial-edition-chapter-list",
+  "dialog/dialogs/tutorial-edition-chapter-names",
+  "dialog/dialogs/tutorial-edition-chapter-times",
+  "dialog/dialogs/tutorial-edition-save-call",
+  "dialog/dialogs/tutorial-edition-save-done"
 ], function() {} );
