@@ -171,70 +171,8 @@ define( [ "dialog/dialog", "ui/widget/tooltip" ], function( Dialog, ToolTip ) {
           "openElem":document.querySelector( ".butter-nav" ),
           "openEvent":"keydown",
           "closeUseCapture":true // Set to true in order to avoid close event
-        }
-        /*{
-          "name":"tutorial-import-resources",
-          "type":"tooltip",
-          "elem":document.querySelector( ".add-all-btn" ),
-          "openElem":document.querySelector( ".add-media-btn"),
-          "param":{
-            "message":"Cliquez ici pour ajouter séquentiellement les ressources importées dans la timeline.",
-            "top":"170px",
-            "left":"170px",
-            "hidden":true,
-            "hover":false
-          }
-        },*/
-        /*{
-          "name":"tutorial-edition-chapter-tab",
-          "type":"tooltip",
-          "elem":document.querySelector( ".butter-editor-header-chapter" ),
-          "overlay":false,
-          "param":{
-            "message":"Cliquez ici pour accéder à l'éditeur de chapitrage hiérachique du projet.",
-            "top":"0px",
-            "left":"0px",
-            "width":"120px",
-            "height":"100px"
-          }
-        }*/
-
-        
+        }        
       ];
-
-      /*function afterDialogClose() {
-        // Remove Listeners
-        dialog.unlisten( "close", afterDialogClose );
-        window.removeEventListener( "click", onDialogClose, false );
-
-        // Remove Classes
-        //eventsEditorButton.classList.remove( "overlay-highlight" );
-        mediaInput.classList.remove( "overlay-highlight" );
-        document.body.classList.remove( "tutorial" );
-
-        // Remove Overlay
-        editor.removeChild( overlayDiv );
-
-        // Show First Run Tooltips
-        showTutorialTooltips();
-      }
-
-      function setupTutorialOrig() {
-        // Setup and append the first-run overlay
-        overlayDiv = document.createElement( "div" );
-        overlayDiv.classList.add( "butter-modal-overlay" );
-        overlayDiv.classList.add( "butter-modal-overlay-dark-bg" );
-        overlayDiv.classList.add( "fade-in" );
-        document.body.appendChild( overlayDiv );
-
-        // Add Listener
-        window.addEventListener( "click", onDialogClose, false );
-
-        // Add Classes
-        //mediaInput.classList.add( "overlay-highlight" );
-        document.body.classList.add( "tutorial" );
-      }*/
-
 
       function onDialogClose(e) {
         dialog.close();
@@ -245,7 +183,6 @@ define( [ "dialog/dialog", "ui/widget/tooltip" ], function( Dialog, ToolTip ) {
         tooltip.hover = false;
         afterTooltipClose();
       }
-
 
       function onStepClose( closeFunc ) {
         var step = steps[currentIndex-1],
