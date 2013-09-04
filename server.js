@@ -214,7 +214,7 @@ debugger;
           externalAssetURL = '',
           externalAssetsString = '',
           popcornString = '',
-          timesheetsString = '',
+          //timesheetsString = '',
           currentMedia,
           currentTrack,
           currentTrackEvent,

@@ -14,6 +14,8 @@ function init() {
   // we don't (e.g., when we open the share dialog).
   var hideInfoDiv = false;
 
+  var tocItems = [];
+
   /**
    * embed.js is a separate, top-level entry point into the requirejs
    * structure of src/.  We use it in order to cherry-pick modules from
@@ -28,6 +30,16 @@ function init() {
       return id;
     }
     return document.querySelector( id );
+  }
+
+  function reconstituteHTML( s ) {
+    return s.replace( /&#34;/g, '"' )
+            .replace( /&#39;/g, "'" )
+            .replace( /&quot;/g, '"' )
+            .replace( /&apos;/g, "'" )
+            .replace( /&lt;/g, '<' )
+            .replace( /&gt;/g, '>' )
+            .replace( /&amp;/g, '&' );
   }
 
   function show( elem ) {
@@ -215,13 +227,38 @@ function init() {
     }
   }
 
-  /*function setupAttribution( popcorn ) {
-    var icon = $( ".media-icon" ),
+  /*function onTocClick(){
+  _toggler = new Toggler( document.getElementById( "controls-toc" ),
+    function() {
+      var newState = !_container.classList.contains( "minimized" );
+
+      var onTransitionEnd = function(){
+        LangUtils.removeTransitionEndListener( _container, onTransitionEnd );
+        //_this.dispatch( "editortoggled", newState );
+      };
+
+      _toggler.state = newState;
+      if ( newState ) {
+        document.body.classList.remove( "editor-open" );
+        _container.classList.add( "minimized" );
+      }
+      else {
+        document.body.classList.add( "editor-open" );
+        _container.classList.remove( "minimized" );
+      }
+
+      LangUtils.applyTransitionEndListener( _container, onTransitionEnd );
+
+    }, "Show/Hide Editor", true );
+  }*/
+
+  function setupAttribution( popcorn ) {
+    var //icon = $( ".media-icon" ),
         src = $( ".attribution-media-src" ),
-        //toggler = $( ".attribution-logo" ),
+        toggler = $( ".attribution-logo" ),
         //closeBtn = $( ".attribution-close" ),
-        //container = $( ".attribution-info" ),
-        //extraAttribution = $( ".attribution-extra" ),
+        container = $( ".attribution-info" ),
+        extraContent = $( ".attribution-content" ),
         classes = {
           html5: "html5-icon",
           youtube: "youtube-icon",
@@ -230,27 +267,81 @@ function init() {
           baseplayer: "html5-icon"
         },
         youtubeRegex = /(?:http:\/\/www\.|http:\/\/|www\.|\.|^)youtu/,
-        type;
+        type,
+        jsonToc = popcorn.data.running.toc[0].jsonml,
+        htmlToc = JsonML.toHTML( jsonToc );
 
     type = popcorn.media._util ? popcorn.media._util.type.toLowerCase() : "html5";
 
-    //extraAttribution.innerHTML = Popcorn.manifest.googlemap.about.attribution;
+    extraContent.appendChild( htmlToc );
+
+    var tocLinks = htmlToc.querySelectorAll(".toc-item-link");
+
+    function updateCurrentTocItem() {
+      var currentLink = htmlToc.querySelector(".current");
+      if(currentLink) currentLink.classList.remove("current");
+      
+      var newLink;
+      for (var j = 0; j < tocItems.length; j++) {
+        var it = tocItems[j],
+          currentTime = context.currentTime();
+        if( currentTime >= it.start && currentTime <= it.end ) {
+          newLink = it.link;
+          break;
+        }
+      }
+      if( newLink ) newLink.classList.add("current");
+    }
+
+    for( var i = 0; i < tocLinks.length; i++) {
+      var tocLink = tocLinks[ i ];
+      tocLink.innerHTML = reconstituteHTML( tocLink.innerHTML );
+
+      var end = tocLink.getAttribute('data-end'),
+        start = tocLink.getAttribute('data-start'),
+        tocItem = {};
+
+      // Set data. Usefull to display tooltips of current chapter.
+      tocItem.end = end;
+      tocItem.start = start;
+      tocItem.link = tocLink;
+
+      tocItems.push(tocItem);
+
+      context.cue( tocItem.start, updateCurrentTocItem);
+
+      tocLink.onclick = function(e) {
+        e.preventDefault();
+        var start = e.target.getAttribute("data-start");
+        if( context.paused() ) {
+          context.pause( start );
+        }
+        else {
+          context.play( start );
+        }
+      }
+    }
+
+    popcorn.data.running.toc[0].tocItems = tocItems;
+
+    // Update toc whenever receives the order to update it
+    context.on("updateToc", updateCurrentTocItem);
 
     // YouTube currently won't have a popcorn.media._util this is a fallback check for YT
     if ( type === "html5" ) {
       type = youtubeRegex.test( src.href ) ? "youtube" : type;
     }
 
-    icon.classList.add( classes[ type ] );
+    //icon.classList.add( classes[ type ] );
 
     toggler.addEventListener( "click", function() {
       container.classList.toggle( "attribution-on" );
     }, false );
 
-    closeBtn.addEventListener( "click", function() {
+    /*closeBtn.addEventListener( "click", function() {
       container.classList.toggle( "attribution-on" );
-    }, false );
-  }*/
+    }, false );*/
+  }
 
   var require = requirejs.config({
     baseUrl: "/src",
@@ -367,7 +458,7 @@ function init() {
             $( "#share-url" ).value = getCanonicalURL();
           }
 
-          //setupAttribution( popcorn );
+          setupAttribution( popcorn );
         },
         preload: config.preload
       });

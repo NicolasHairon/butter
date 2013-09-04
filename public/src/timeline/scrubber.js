@@ -183,7 +183,7 @@ define( [ "util/time" ],
 
     function onMouseOver( e ) {
       onTimelineMouseMove( e );
-      _timeTooltip.classList.add( "tooltip-no-transition-on" );
+      //_timeTooltip.classList.add( "tooltip-no-transition-on" );
 
       parentElement.addEventListener( "mousemove", onTimelineMouseMove, false );
       parentElement.removeEventListener( "mouseover", onMouseOver, false );
@@ -191,7 +191,7 @@ define( [ "util/time" ],
     }
 
     function onMouseOut() {
-      _timeTooltip.classList.remove( "tooltip-no-transition-on" );
+      //_timeTooltip.classList.remove( "tooltip-no-transition-on" );
 
       parentElement.removeEventListener( "mousemove", onTimelineMouseMove, false );
       parentElement.removeEventListener( "mouseout", onMouseOut, false );

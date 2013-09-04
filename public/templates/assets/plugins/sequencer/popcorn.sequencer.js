@@ -568,7 +568,7 @@
           elem: "input",
           type: "number",
           label: "Width",
-          "default": 75,
+          "default": 100,
           "units": "%",
           hidden: true
         },
@@ -576,7 +576,7 @@
           elem: "input",
           type: "number",
           label: "Height",
-          "default": 75,
+          "default": 100,
           "units": "%",
           hidden: true
         },
@@ -584,7 +584,7 @@
           elem: "input",
           type: "number",
           label: "Top",
-          "default": 20,
+          "default": 0,
           "units": "%",
           hidden: true
         },

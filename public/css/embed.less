@@ -104,13 +104,13 @@ body {
 */
 
 .attribution-info {
-  font-family: "Meta", "Open Sans", "Helvetica Neue", sans-serif;
+  font-family: "Helvetica Neue", sans-serif;
   z-index: @attributionZIndex;
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
-  height: 1%;
+  height: 100%;
   font-size: 14px;
 
   a,
@@ -137,18 +137,20 @@ body {
 
 .attribution-logo {
   position: absolute;
-  top: 15px;
-  left: 15px;
+  top: 18px;
+  right: 20px;
   width: @creditsLogoSize;
   height: @creditsLogoSize;
   border-radius: @creditsLogoSize;
   text-align: center;
   background-color: @red;
+  /*background-image: url("../media/img/glyphiconshalflings-white.png");
+  background-position: -264px 0;*/
   color: #FFF;
   z-index: 1;
   opacity: 0.5;
   cursor: pointer;
-  .transition( all 0.1s ease );
+  .transition( all 0.5s ease );
   &:before {
     position: relative;
     top: 3px;
@@ -163,9 +165,11 @@ body {
     }
   }
 }
-// "Credits"
+
 .attribution-text {
   position: absolute;
+  top: 0px;
+  left: -110px;
   height: @creditsLogoSize;
   line-height: @creditsLogoSize;
   left: @creditsLogoSize + 6;
@@ -182,24 +186,59 @@ body {
     &:before { font-size: 40px; }
   }
   .attribution-text {
-    left: @creditsLogoSize + 14;
-    line-height: @creditsLogoSize + 5;
+    /*left: @creditsLogoSize + 14;
+    line-height: @creditsLogoSize + 5;*/
+    left: -110px;
   }
+}
+
+.attribution-content {
+  ul.toc-list {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    font-size: 0.8em;
+    border-bottom: 1px solid #d5d6d5;
+  }
+
+  ul.toc-list li {
+    float: left;
+    width: 100%!important;
+    border-top: 1px solid #d5d6d5;
+    background-color: rgba( 0, 0, 0, 0.05 );
+    &:hover {
+      background-color: rgba( 255, 255, 255, 99.95 );
+    }
+  }
+
+  ul.toc-list li a {
+    display: block;
+    font-size: 0.8em;
+    text-decoration: none;
+    padding: 1.2em 1.4em;
+  }
+
+  ul.toc-list li a.current {
+    font-weight: bold;
+  }
+
 }
 
 .attribution-details {
   position: absolute;
   top: 0;
-  left: 0;
   right: 0;
-  padding-left: 3.5em;
+  bottom: 42px;
+  width: 300px;
+  /*padding-left: 1.2em;
   padding-top: 1em;
-  padding-bottom: 1em;
-  background: rgba( 255, 255, 255, 0.9 );
+  padding-bottom: 1em;*/
+  background: rgba( 255, 255, 255, 0.95 );
   color: black;
-  border-bottom: 1px solid rgba( 0, 0, 0, 0.2 );
-  overflow: hidden;
-  .transition( opacity .1s ease );
+  border-left: 1px solid #d5d6d5;
+  overflow: scroll;
+  .transition( opacity .2s ease );
 }
 
 .attribution-mopop {
@@ -208,12 +247,12 @@ body {
   font-weight: 700;
 }
 .attribution-title {
-  font-size: 1.3em;
+  font-size: 1em;
   line-height: 1.6;
   max-width: 90%;
   overflow: hidden;
-  white-space: nowrap;
   text-overflow: ellipsis;
+  padding: 0.8em;
 }
 .attribution-author {
   font-style: italic;

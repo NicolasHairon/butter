@@ -1,6 +1,8 @@
 <div id="butter-controls">
   <div class="controls-left">
     <span id="controls-play" class="controls-btn controls-paused"></span>
+    <span id="controls-prev" class="controls-btn"></span>
+    <span id="controls-next" class="controls-btn"></span>
   </div>
   <div class="time">
     <span id="controls-currenttime">0:00</span>
@@ -8,8 +10,13 @@
     <span id="controls-duration">0:00</span>
   </div>
   <div class="controls-middle">
-    <div id="controls-timebar">
-      <div id="controls-progressbar"></div>
+    <div id="controls-time-tooltip" class="butter-tooltip tooltip-no-hover" data-tooltip></div>
+
+    <div id="controls-bars">
+      <div id="controls-tocbar"></div>
+      <div id="controls-timebar">
+        <div id="controls-progressbar"></div>
+      </div>
     </div>
   </div>
   <div id="controls-volume-container">
@@ -22,6 +29,7 @@
     <div id="controls-share" title="Share"></div>
     <div id="controls-remix" title="Remix"></div>
     <div id="controls-fullscreen" title="Fullscreen"></div>
+    <!--div id="controls-toc" title="Table of contents"></div-->
   </div>
-  <a id="controls-logo" href="/" target="_blank" title="Popcorn Maker"></a>
+  <!--a id="controls-logo" href="/" target="_blank" title="Popcorn Maker"></a-->
 </div>

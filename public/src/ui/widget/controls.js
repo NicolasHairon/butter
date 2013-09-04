@@ -2,8 +2,12 @@
  * If a copy of the MIT license was not distributed with this file, you can
  * obtain one at https://raw.github.com/mozilla/butter/master/LICENSE */
 
-define( [ "util/lang", "util/time", "text!layouts/controls.html" ],
-  function( LangUtils, Time, CONTROLS_LAYOUT ) {
+define( [ "util/lang", "util/time", "util/sanitizer",
+  "ui/toggler",
+  "text!layouts/controls.html" ],
+  function( LangUtils, Time, Sanitizer,
+    Toggler,
+    CONTROLS_LAYOUT ) {
 
   function Controls( container, options ) {
 
@@ -12,16 +16,22 @@ define( [ "util/lang", "util/time", "text!layouts/controls.html" ],
 
     var _controls = LangUtils.domFragment( CONTROLS_LAYOUT ).querySelector( "#butter-controls" ),
         _container = typeof container === "string" ? document.getElementById( container ) : container, p,
+        
         // variables
-        muteButton, playButton, currentTimeDialog, fullscreenButton,
-        durationDialog, timebar, progressBar, bigPlayButton,
-        scrubber, seeking, playStateCache, active,
+        muteButton, playButton, prevButton, nextButton, currentTimeDialog, fullscreenButton,
+        durationDialog, tocbar, timebar, timeTooltip, progressBar, bigPlayButton,
+        scrubber, seeking, playStateCache, active, duration,
+        controlsBars,
         volume, volumeProgressBar, volumeScrubber, position,
-        controlsShare, controlsRemix, controlsFullscreen, controlsLogo,
+        controlsShare, controlsRemix, controlsFullscreen, //controlsToc,
+        jsonToc, htmlToc, tocItems,
+        tooltipTime, tooltipH1, tooltipH2, tooltipH3,
         // functions
         bigPlayClicked, activate, deactivate, volumechange,
-        togglePlay, timeMouseMove, timeMouseUp,
-        timeMouseDown, volumeMouseMove, volumeMouseUp,
+        togglePlay, timeMouseOver, timeMouseUp,
+        onTocReady,
+        //timeToolTipMouseMove,
+        timeMouseDown, timeMouseMove, volumeMouseMove, volumeMouseUp,
         volumeMouseDown, durationchange, mutechange;
 
     // Deal with callbacks for various buttons in controls
@@ -30,7 +40,7 @@ define( [ "util/lang", "util/time", "text!layouts/controls.html" ],
         onShareClick = options.onShareClick || nop,
         onRemixClick = options.onRemixClick || nop,
         onFullscreenClick = options.onFullscreenClick || nop,
-        onLogoClick = options.onLogoClick || nop,
+        //onTocClick = onTocClick,
         init = options.init || nop;
 
     function onInit() {
@@ -56,9 +66,14 @@ define( [ "util/lang", "util/time", "text!layouts/controls.html" ],
 
       muteButton = document.getElementById( "controls-mute" );
       playButton = document.getElementById( "controls-play" );
+      prevButton = document.getElementById( "controls-prev" );
+      nextButton = document.getElementById( "controls-next" );
       currentTimeDialog = document.getElementById( "controls-currenttime" );
       durationDialog = document.getElementById( "controls-duration" );
+      controlsBars = document.getElementById( "controls-bars" );
+      tocbar = document.getElementById( "controls-tocbar" );
       timebar = document.getElementById( "controls-timebar" );
+      timeTooltip = document.getElementById( "controls-time-tooltip" );
       progressBar = document.getElementById( "controls-progressbar" );
       bigPlayButton = document.getElementById( "controls-big-play-button" );
       scrubber = document.getElementById( "controls-scrubber" );
@@ -69,16 +84,75 @@ define( [ "util/lang", "util/time", "text!layouts/controls.html" ],
       controlsShare = document.getElementById( "controls-share" );
       controlsRemix = document.getElementById( "controls-remix" );
       controlsFullscreen = document.getElementById( "controls-fullscreen" );
-      controlsLogo = document.getElementById( "controls-logo" );
+      //controlsToc = document.getElementById( "controls-toc" );
+      //controlsLogo = document.getElementById( "controls-logo" );
       seeking = false;
       playStateCache = false;
       active = false;
+      duration = p.duration();
+
+      tooltipTime = document.createElement("span");
+      tooltipTime.classList.add("tooltip-time");
+      tooltipH1 = document.createElement("span");
+      tooltipH1.classList.add("tooltip-h1");
+      //tooltipH2 = document.createElement("h2");
+      //tooltipH3 = document.createElement("h3");
+
+      timeTooltip.appendChild(tooltipTime);
+      timeTooltip.appendChild(tooltipH1);
+      /*timeTooltip.appendChild(tooltipH2);
+      timeTooltip.appendChild(tooltipH3);*/
+
+      jsonToc = p.data.running.toc[0].jsonml;
+      htmlToc = JsonML.toHTML( jsonToc );
+      tocItems = p.data.running.toc[0].tocItems;
 
       // Wire custom callbacks for right-hand buttons
       controlsShare.addEventListener( "click", onShareClick, false );
       controlsRemix.addEventListener( "click", onRemixClick, false );
       controlsFullscreen.addEventListener( "click", onFullscreenClick, false );
-      controlsLogo.addEventListener( "click", onLogoClick, false );
+
+      var tocLinks = htmlToc.querySelectorAll(".toc-item-link");
+
+      for( var i = 0; i < tocLinks.length; i++) {
+        var tocLink = tocLinks[ i ],
+          newTocbarItem = document.createElement('div');
+        
+        newTocbarItem.classList.add("controls-tocbar-item");
+        (i%2 === 0) ? newTocbarItem.classList.add("even") : newTocbarItem.classList.add("odd");
+
+        tocLink.innerHTML = Sanitizer.reconstituteHTML( tocLink.innerHTML );
+
+        var end = tocLink.getAttribute('data-end'),
+          start = tocLink.getAttribute('data-start');
+        //  tocItem = {};
+
+        // Set data. Usefull to display tooltips of current chapter.
+        /*tocItem.end = end;
+        tocItem.start = start;
+        tocItem.title = tocLink.innerHTML;
+
+        tocItems.push(tocItem);*/
+
+        var itemLeft = start/duration * 100 + "%",
+          itemWidth = (end-start)/duration * 100 + "%";
+
+        newTocbarItem.style.position = "absolute";
+        newTocbarItem.style.left = itemLeft;
+        newTocbarItem.style.width = itemWidth;
+
+        tocbar.appendChild( newTocbarItem );
+        /*tocLink.onclick = function(e) {
+          e.preventDefault();
+          var start = e.target.getAttribute("data-start");
+          if( context.paused() ) {
+            context.pause( start );
+          }
+          else {
+            context.play( start );
+          }
+        }*/
+      }
 
       if ( bigPlayButton ) {
 
@@ -113,7 +187,6 @@ define( [ "util/lang", "util/time", "text!layouts/controls.html" ],
       _controls.classList.add( "controls-ready" );
 
       activate = function() {
-
         active = true;
         _controls.classList.add( "controls-active" );
       };
@@ -146,6 +219,45 @@ define( [ "util/lang", "util/time", "text!layouts/controls.html" ],
         }
       };
 
+      prevClick = function( e ) {
+        goToStep( true );
+      };
+
+      nextClick = function( e ) {
+        goToStep( false );
+      }
+
+      goToStep = function( toPrev ) {
+        var currentTime = p.currentTime(),
+          currentItem, targetItem;
+
+        for (var i = 0; i < tocItems.length; i++) {
+          var item = tocItems[i];
+          if( currentTime >= item.start && currentTime <= item.end ) {
+            currentItem = item;
+            if( toPrev ) {
+              if( i > 0 )
+                targetItem = tocItems[i-1];
+              else if(i==0)
+                targetItem = tocItems[0];
+            }
+            else {
+              if( i < tocItems.length-1 )
+                targetItem = tocItems[i+1];
+              else if(i == tocItems.length-1)
+                targetItem = tocItems[tocItems.length-1];
+            }
+            break;
+          }
+        }
+
+        if ( p.paused() ) {
+          p.pause( targetItem.start );
+        } else {
+          p.play( targetItem.start );
+        }
+      }
+
       p.media.addEventListener( "click", togglePlay, false );
       window.addEventListener( "keypress", togglePlay, false );
 
@@ -154,15 +266,22 @@ define( [ "util/lang", "util/time", "text!layouts/controls.html" ],
         playButton.addEventListener( "click", togglePlay, false );
 
         p.on( "play", function() {
-
           playButton.classList.remove( "controls-paused" );
           playButton.classList.add( "controls-playing" );
         });
-        p.on( "pause", function() {
 
+        p.on( "pause", function() {
           playButton.classList.remove( "controls-playing" );
           playButton.classList.add( "controls-paused" );
         });
+      }
+
+      if( prevButton ) {
+        prevButton.addEventListener( "click", prevClick, false );
+      }
+
+      if( nextButton ) {
+        nextButton.addEventListener( "click", nextClick, false );
       }
 
       if ( muteButton ) {
@@ -324,6 +443,24 @@ define( [ "util/lang", "util/time", "text!layouts/controls.html" ],
 
       if ( timebar ) {
 
+        setTimeTooltip = function () {
+          //timeTooltip.innerHTML = Time.toTimecode( p.currentTime(), 0 );
+          //timeTooltip.innerHTML = position;
+          var currentTime = position / timebar.offsetWidth * duration;
+
+          tooltipTime.innerHTML = Time.toTimecode( currentTime, 0 );
+
+          tooltipH1.innerHTML = "";
+          for (var i = 0; i < tocItems.length; i++) {
+            var item = tocItems[i];
+            if( currentTime > item.start && currentTime < item.end ) {
+              tooltipH1.innerHTML = item.link.innerHTML;
+              break;
+            }
+          }
+
+        }
+
         timeMouseMove = function( e ) {
 
           e.preventDefault();
@@ -349,12 +486,18 @@ define( [ "util/lang", "util/time", "text!layouts/controls.html" ],
           }
 
           p.currentTime( position / timebar.offsetWidth * 100 * p.duration() / 100 );
+          //timeTooltip.style.left = position + "px";
+          setTimeTooltip();
         };
-
+/*
+        timeToolTipMouseMove = function( e ) {
+          position = e.clientX - timebar.getBoundingClientRect().left;
+          timeTooltip.style.left = position + "px";
+          setTimeTooltip();
+        }
+*/
         timeMouseUp = function( e ) {
-
           if ( e.button !== 0 ) {
-
             return;
           }
 
@@ -368,12 +511,11 @@ define( [ "util/lang", "util/time", "text!layouts/controls.html" ],
           }
           window.removeEventListener( "mouseup", timeMouseUp, false );
           window.removeEventListener( "mousemove", timeMouseMove, false );
+          p.emit("updateToc");
         };
 
         timeMouseDown = function( e ) {
-
           if ( e.button !== 0 ) {
-
             return;
           }
 
@@ -387,19 +529,63 @@ define( [ "util/lang", "util/time", "text!layouts/controls.html" ],
           window.addEventListener( "mousemove", timeMouseMove, false );
 
           if ( progressBar ) {
-
             progressBar.style.width = ( position / timebar.offsetWidth * 100 ) + "%";
           }
 
           if ( scrubber ) {
-
             scrubber.style.left = ( ( position - ( scrubber.offsetWidth / 2 ) ) / timebar.offsetWidth * 100 ) + "%";
           }
 
-          p.currentTime( position / timebar.offsetWidth * 100 * p.duration() / 100 );
+          p.currentTime( position / timebar.offsetWidth * p.duration() );
+          p.emit("updateToc");
         };
 
+
+function onTimelineMouseMove( e ) {
+  position = e.clientX - timebar.getBoundingClientRect().left;
+
+  if ( position < 0 ) {
+    position = 0;
+  } else if ( position > _container.offsetWidth ) {
+    position = _container.offsetWidth;
+  }
+
+  timeTooltip.style.left = position + "px";
+  setTimeTooltip();
+}
+
+/*function setTimeTooltip() {
+  //timeTooltip.innerHTML = Time.toTimecode( p.currentTime(), 0 );
+  timeTooltip.innerHTML = Time.toTimecode( position / timebar.offsetWidth * _media.duration, 0 );
+}*/
+
+timeMouseOver = function( e ) {
+  onTimelineMouseMove( e );
+  timeTooltip.classList.add( "tooltip-no-transition-on" );
+
+  timebar.addEventListener( "mousemove", onTimelineMouseMove, false );
+  timebar.removeEventListener( "mouseover", timeMouseOver, false );
+  timebar.addEventListener( "mouseout", timeMouseOut, false );
+}
+
+timeMouseOut = function( e ) {
+  timeTooltip.classList.remove( "tooltip-no-transition-on" );
+
+  timebar.removeEventListener( "mousemove", onTimelineMouseMove, false );
+  timebar.removeEventListener( "mouseout", timeMouseOut, false );
+  timebar.addEventListener( "mouseover", timeMouseOver, false );
+}
+
+timebar.addEventListener( "mouseover", timeMouseOver, false );
+timebar.addEventListener( "mousedown", timeMouseDown, false );
+
+/*
+        timebar.addEventListener( "mouseover", timeMouseOver, false );
         timebar.addEventListener( "mousedown", timeMouseDown, false );
+*/
+
+        //timebar.addEventListener( "mousemove", timeMouseMove, false );
+
 
         p.on( "timeupdate", function() {
 

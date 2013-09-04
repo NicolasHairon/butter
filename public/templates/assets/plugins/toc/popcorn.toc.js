@@ -201,7 +201,8 @@
           //link,
           shadowColor = options.shadowColor || DEFAULT_SHADOW_COLOR,
           backgroundColor = options.backgroundColor || DEFAULT_BACKGROUND_COLOR,
-          popcorn = context = this;
+          popcorn = context = this,
+          tocItems = [];
 
       if ( !target ) {
         target = this.media.parentNode;
@@ -209,7 +210,7 @@
 
       options._target = target;
       container.style.position = "absolute";
-      container.classList.add( "popcorn-text" );
+      container.classList.add( "popcorn-toc" );
 
       // backwards comp
       if ( "center left right".match( position ) ) {
@@ -234,7 +235,7 @@
       // Handle all custom fonts/styling
 
       options.fontColor = options.fontColor || DEFAULT_FONT_COLOR;
-      innerContainer.classList.add( "text-inner-div" );
+      innerContainer.classList.add( "toc-inner-div" );
       innerContainer.style.color = options.fontColor;
       innerContainer.style.fontStyle = fontDecorations.italics ? "italic" : "normal";
       innerContainer.style.fontWeight = fontDecorations.bold ? "bold" : "normal";
@@ -276,24 +277,32 @@
 
         if( options.jsonml ) {
           var htmlFromJson = JsonML.toHTML( options.jsonml );
-          innerDiv.appendChild( htmlFromJson );
+          //innerDiv.appendChild( htmlFromJson );
 
-          var links = document.querySelectorAll(".toc-item-link");
+          var links = htmlFromJson.querySelectorAll(".toc-item-link");
           for( var i = 0; i < links.length; i++) {
             var link = links[ i ];
             link.innerHTML = reconstituteHTML( link.innerHTML );
+            var duration = context.duration(),
+              end = link.getAttribute('data-end'),
+              start = link.getAttribute('data-start'),
+              tocItem = {};
 
-        /*ToolTip.create({
-          name: options.name,
-          element: link,
-          message: link.innerHTML,
-          top: normalize( options.top ),
-          left: normalize( options.left ),
-          hidden: options.hidden,
-          hover: options.hover
-        });*/
+            // Set data. Usefull to display tooltips of current chapter.
+            tocItem.end = end;
+            tocItem.start = start;
+            tocItem.link = link;
 
-            link.onclick = function(e) {
+            tocItems.push(tocItem);
+
+            /*context.cue(start, function() {
+              if(currentLink) currentLink.classList.remove("current");
+
+              currentLink = link;
+              currentLink.classList.add("current");        
+            });*/
+
+            /*link.onclick = function(e) {
               e.preventDefault();
               var start = e.target.getAttribute("data-start");
               if( context.paused() ) {
@@ -302,14 +311,32 @@
               else {
                 context.play( start );
               }
-            }
-
-            //$(link).button();
+            }*/
           }
+
+          /*for (var i = 0; i < tocItems.length; i++) {
+            var item = tocItems[i];
+            context.cue( item.start, function() {
+              var currentLink = htmlFromJson.querySelector(".current");
+              if(currentLink) currentLink.classList.remove("current");
+              item.link.classList.add("current");
+            });
+          }*/
+
+          /*for (var j = 0; j < links.length; j++) {
+            context.cue(start, function() {
+              if(currentLink) currentLink.classList.remove("current");
+              currentLink = link;
+              currentLink.classList.add("current");        
+            });
+          };*/
+
+
         }
 
       };
       fontSheet.href = "//fonts.googleapis.com/css?family=" + options.fontFamily.replace( /\s/g, "+" ) + ":400,700";
+
 
       options.toString = function() {
         // use the default option if it doesn't exist
