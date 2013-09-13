@@ -253,9 +253,9 @@
       options.fontFamily = options.fontFamily ? options.fontFamily : options._natives.manifest.options.fontFamily[ "default" ];
       // Store reference to generated sheet for removal later, remove any existing ones
       options._fontSheet = fontSheet;
-      //document.head.appendChild( fontSheet );
+      document.head.appendChild( fontSheet );
 
-      /*fontSheet.onload = function () {
+      fontSheet.onload = function () {
         innerContainer.style.fontFamily = options.fontFamily;
         innerContainer.style.fontSize = options.fontSize + "%";
         if ( position === "custom" ) {
@@ -275,70 +275,9 @@
           innerDiv.style.zIndex = +options.zindex;
         }
 
-        if( options.jsonml ) {
-          var htmlFromJson = JsonML.toHTML( options.jsonml );
-
-          var links = htmlFromJson.querySelectorAll(".toc-item-link");
-          for( var i = 0; i < links.length; i++) {
-            var link = links[ i ];
-            link.innerHTML = reconstituteHTML( link.innerHTML );
-            var duration = context.duration(),
-              end = link.getAttribute('data-end'),
-              start = link.getAttribute('data-start'),
-              tocItem = {};
-
-            // Set data. Usefull to display tooltips of current chapter.
-            tocItem.end = end;
-            tocItem.start = start;
-            tocItem.link = link;
-
-            tocItems.push(tocItem);
-
-            /*context.cue(start, function() {
-              if(currentLink) currentLink.classList.remove("current");
-
-              currentLink = link;
-              currentLink.classList.add("current");        
-            });*/
-
-            /*link.onclick = function(e) {
-              e.preventDefault();
-              var start = e.target.getAttribute("data-start");
-              if( context.paused() ) {
-                context.pause( start );
-              }
-              else {
-                context.play( start );
-              }
-            }*/
-
-
-
-          //}
-
-          /*for (var i = 0; i < tocItems.length; i++) {
-            var item = tocItems[i];
-            context.cue( item.start, function() {
-              var currentLink = htmlFromJson.querySelector(".current");
-              if(currentLink) currentLink.classList.remove("current");
-              item.link.classList.add("current");
-            });
-          }*/
-
-          /*for (var j = 0; j < links.length; j++) {
-            context.cue(start, function() {
-              if(currentLink) currentLink.classList.remove("current");
-              currentLink = link;
-              currentLink.classList.add("current");        
-            });
-          };*/
-
-
-        /*}
-
       };
       fontSheet.href
-      = "//fonts.googleapis.com/css?family=" + options.fontFamily.replace( /\s/g, "+" ) + ":400,700";*/
+      = "//fonts.googleapis.com/css?family=" + options.fontFamily.replace( /\s/g, "+" ) + ":400,700";
 
 
       options.toString = function() {
