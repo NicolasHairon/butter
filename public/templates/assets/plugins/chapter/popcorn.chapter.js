@@ -192,7 +192,7 @@
 
       options._target = target;
       container.style.position = "absolute";
-      container.classList.add( "popcorn-text" );
+      container.classList.add( "popcorn-chapter" );
 
       // backwards comp
       if ( "center left right".match( position ) ) {
@@ -237,8 +237,8 @@
       options._fontSheet = fontSheet;
       document.head.appendChild( fontSheet );
       fontSheet.onload = function () {
-        innerContainer.style.fontFamily = options.fontFamily;
-        innerContainer.style.fontSize = (4-level)/2*options.fontSize + "%";
+        //innerContainer.style.fontFamily = options.fontFamily;
+        //innerContainer.style.fontSize = (4-level)/2*options.fontSize + "%";
         if ( position === "custom" ) {
           container.classList.add( "text-custom" );
           innerContainer.classList.add( alignment );

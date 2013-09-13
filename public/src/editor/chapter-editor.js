@@ -235,6 +235,7 @@ define([ "editor/editor", "editor/base-editor", "util/lang", "util/keys", "util/
           tocListItemLink.setAttribute("href", "#");
           tocListItemLink.setAttribute("data-start", trackEvent.popcornOptions.start);
           tocListItemLink.setAttribute("data-end", trackEvent.popcornOptions.end);
+          tocListItemLink.setAttribute("data-level", trackEvent.popcornOptions.level);
           tocListItemLink.setAttribute("data-trackevent-id", trackEvent.id);
           tocListItemLink.setAttribute("class", "toc-item-link");
           tocListItemLink.innerHTML = text;
@@ -320,6 +321,9 @@ define([ "editor/editor", "editor/base-editor", "util/lang", "util/keys", "util/
           popcornOptions: popcornOptions,
           type: "chapter"
         });
+
+        _media.dispatch("newChapter", popcornOptions);
+
 
         _butter.deselectAllTrackEvents();
         trackEvent.selected = true;

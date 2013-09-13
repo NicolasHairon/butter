@@ -210,7 +210,6 @@ body.editor-minimized .body-wrapper {
   z-index: @MODAL_Z_INDEX;
   width: @_tooltipWidth;
   padding: 10px;
-  background: #4E555A;
   text-shadow: none;
   color: #FFF;
   line-height: 15px;
@@ -250,19 +249,20 @@ body.editor-minimized .body-wrapper {
 }
 
 #controls-time-tooltip {
-  @_tooltipHeight: 32px;
   width: inherit;
   display: inline;
   margin-top: 3px;
   margin-left: -25px;
   text-align: left;
-  /*padding: @_tooltipHeight / 3;*/
+  background: #4E555A;
   font-size: 12px;
   font-weight: bold;
-  line-height: @_tooltipHeight / 3;
-  top: -( @_tooltipHeight + 4px );
-  height: @_tooltipHeight;
+  line-height: 16px;
+  top: -74px;
+  height: 70px;
   border-radius: 3px;
+
+
   &.tooltip-on {
     .transition( all 0.1s ease 0 );
   }
@@ -282,16 +282,42 @@ body.editor-minimized .body-wrapper {
 }
 
 .tooltip-time {
-  font-size: 12px;
+  font-size: 18px;
   font-weight: normal;
   text-align: left;
   margin-right: 10px;
+  vertical-align: 15px;
+}
+
+.tooltip-titles {
+  display: inline-block;
+  white-space: nowrap;
+  padding-right: 1em;
 }
 
 .tooltip-h1 {
   font-size: 14px;
+  font-weight: 300;
   text-align: left;
-  display: inline;
+  display: block;
+  overflow: visible;
+  white-space:nowrap;
+}
+
+.tooltip-h2 {
+  font-size: 14px;
+  font-weight: 300;
+  text-align: left;
+  display: block;
+  overflow: visible;
+  white-space:nowrap;
+}
+
+.tooltip-h3 {
+  font-size: 14px;
+  font-weight: 600;
+  text-align: left;
+  display: block;
   overflow: visible;
   white-space:nowrap;
 }

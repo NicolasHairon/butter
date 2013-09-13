@@ -5,6 +5,7 @@
 @_mediaStatusContainerHeight: @_butterStatusHeight;
 @_playButtonHeight: 27px;
 @_scrubberBarHeight: 8px;
+@_tocBarHeight: 15px;
 @_scrubberHandleHeight: 10px;
 @_traySideWidth: 129px;
 @_timebarRight: 27px;
@@ -40,6 +41,15 @@
   top: ( @_mediaStatusContainerHeight - @_scrubberBarHeight ) / 2;
   right: @_timebarRight;
   height: ( @_mediaStatusContainerHeight / 2 ) + ( @_scrubberBarHeight / 2 );
+}
+
+.time-bar-toc-container {
+  position: absolute;
+  left: 0;
+  top: -20px;
+  height: @_tocBarHeight;
+  overflow: visible;
+  right: 0;
 }
 
 // Time ticks
@@ -136,6 +146,53 @@
     border-top: 5px solid #CCC;
   }
 }
+
+
+
+.time-bar-toc-item {
+  position: absolute;
+  top: 0;
+  width: 6px;
+  height: 15px;
+  opacity: 0.5;
+  background: #000;
+  z-index: 1000000;
+}
+
+
+.time-bar-toc-tooltip {
+  @_tooltipHeight: 32px;
+  width: inherit;
+  margin-top: -6px;
+  margin-left: -22px;
+  text-align: left;
+  background: #4E555A;
+  border: 0;
+  /*padding: @_tooltipHeight / 3;*/
+  font-size: 12px;
+  font-weight: bold;
+  line-height: @_tooltipHeight / 3;
+  top: -( @_tooltipHeight + 4px );
+  height: @_tooltipHeight;
+  border-radius: 3px;
+  &.tooltip-on {
+    .transition( all 0.1s ease 0 );
+  }
+  &:after, &:before{
+    top: 100%;
+    border-bottom: none;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-top: 5px solid;
+    border-top-color: #4E555A;
+  }
+  &:before {
+    top: 100%;
+    border-bottom: none;
+    border-top: 5px solid #4E555A;
+  }
+}
+
 
 /*********************************************************
 * Status container - Play button, time code at the top left of the tray.

@@ -385,7 +385,7 @@ define( [ "util/lang", "util/uri", "util/keys", "util/mediatypes", "editor/edito
     }
 
     // Send sequence track to chapter editor
-    _media.dispatch("sequencetrackadded", _mediaTrack);
+    //_media.dispatch("sequencetrackadded", _mediaTrack);
   }
 
   Editor.register( "media-editor", null, function( rootElement, butter ) {

@@ -14,12 +14,15 @@ define( [ "util/time" ],
         _node = _container.querySelector( ".time-bar-scrubber-node" ),
         _timeTooltip = _container.querySelector( ".butter-time-tooltip" ),
         _line = _container.querySelector( ".time-bar-scrubber-line" ),
+        _tocContainer = parentElement.querySelector( ".time-bar-toc-container" ),
+        _tocTooltip = parentElement.querySelector( ".time-bar-toc-tooltip"),
         _fill = _container.querySelector( ".fill-bar" ),
         _tracksContainer = tracksContainer,
         _tracksContainerWidth,
         _media = media,
         _mouseDownPos,
         _currentMousePos,
+        _toclineMousePos,
         _timelineMousePos,
         _scrollInterval = -1,
         _rect,
@@ -181,21 +184,58 @@ define( [ "util/time" ],
       _timeTooltip.innerHTML = util.toTimecode( ( _timelineMousePos + _tracksContainer.element.scrollLeft ) / _tracksContainerWidth * _media.duration, 0 );
     }
 
+
+    function onToclineMouseMove( e ) {
+      _toclineMousePos = e.clientX - parentElement.offsetLeft;
+
+      if ( _toclineMousePos < 0 ) {
+        _toclineMousePos = 0;
+      } else if ( _toclineMousePos > _container.offsetWidth ) {
+        _toclineMousePos = _container.offsetWidth;
+      }
+
+      _tocTooltip.style.left = _toclineMousePos + "px";
+      setTocTooltip();
+    }
+
+    function setTocTooltip() {
+      _tocTooltip.innerHTML = util.toTimecode( ( _toclineMousePos + _tracksContainer.element.scrollLeft ) / _tracksContainerWidth * _media.duration, 0 );
+    }
+
     function onMouseOver( e ) {
       onTimelineMouseMove( e );
+      onToclineMouseMove( e );
       //_timeTooltip.classList.add( "tooltip-no-transition-on" );
 
       parentElement.addEventListener( "mousemove", onTimelineMouseMove, false );
+      parentElement.addEventListener( "mousemove", onToclineMouseMove, false );
       parentElement.removeEventListener( "mouseover", onMouseOver, false );
       parentElement.addEventListener( "mouseout", onMouseOut, false );
     }
 
+    function onTocbarMouseOver( e ) {
+      onToclineMouseMove( e );
+      //_timeTooltip.classList.add( "tooltip-no-transition-on" );
+
+      _tocContainer.addEventListener( "mousemove", onToclineMouseMove, false );
+      _tocContainer.removeEventListener( "mouseover", onTocbarMouseOver, false );
+      _tocContainer.addEventListener( "mouseout", onTocbarMouseOut, false );
+    }
+
     function onMouseOut() {
-      //_timeTooltip.classList.remove( "tooltip-no-transition-on" );
+      _timeTooltip.classList.remove( "tooltip-no-transition-on" );
 
       parentElement.removeEventListener( "mousemove", onTimelineMouseMove, false );
       parentElement.removeEventListener( "mouseout", onMouseOut, false );
       parentElement.addEventListener( "mouseover", onMouseOver, false );
+    }
+
+    function onTocbarMouseOut() {
+      _timeTooltip.classList.remove( "tooltip-no-transition-on" );
+
+      _tocContainer.removeEventListener( "mousemove", onToclineMouseMove, false );
+      _tocContainer.removeEventListener( "mouseout", onTocbarMouseOut, false );
+      _tocContainer.addEventListener( "mouseover", onTocbarMouseOver, false );
     }
 
     var onMouseDown = this.onMouseDown = function( e ) {
@@ -226,6 +266,7 @@ define( [ "util/time" ],
     }; //onMouseDown
 
     parentElement.addEventListener( "mouseover", onMouseOver, false );
+    _tocContainer.addEventListener( "mouseover", onTocbarMouseOver, false );
 
     this.update = function( containerWidth ) {
       _width = containerWidth || _width;
@@ -255,6 +296,31 @@ define( [ "util/time" ],
       if( !_isScrubbing && !_isSeeking ){
         _isPlaying = false;
       }
+    });
+
+    _media.listen("newChapter", function( data ) {
+        var newChapterItem = document.createElement('div'),
+          //newChapterTooltip = document.createElement('div'),
+          options = data.data;
+        newChapterItem.classList.add("time-bar-toc-item");
+
+        var end = options.end,
+        start = options.start;
+
+        var itemLeft = start/_media.duration * 100 + "%",
+          itemWidth = (end-start)/_media.duration * 100 + "%";
+
+        newChapterItem.style.left = itemLeft;
+        //newChapterItem.style.width = itemWidth;
+        /*newChapterTooltip.setAttribute("data-tooltip");
+        newChapterTooltip.style.left = itemLeft;
+        newChapterTooltip.classList.add("butter-tooltip");
+        _tocContainer.appendChild( newChapterTooltip );*/
+
+        //newChapter.addEventListener("")
+
+        _tocContainer.appendChild( newChapterItem );
+
     });
 
     _media.listen( "mediatimeupdate", setNodePosition );

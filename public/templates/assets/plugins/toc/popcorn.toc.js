@@ -253,9 +253,9 @@
       options.fontFamily = options.fontFamily ? options.fontFamily : options._natives.manifest.options.fontFamily[ "default" ];
       // Store reference to generated sheet for removal later, remove any existing ones
       options._fontSheet = fontSheet;
-      document.head.appendChild( fontSheet );
+      //document.head.appendChild( fontSheet );
 
-      fontSheet.onload = function () {
+      /*fontSheet.onload = function () {
         innerContainer.style.fontFamily = options.fontFamily;
         innerContainer.style.fontSize = options.fontSize + "%";
         if ( position === "custom" ) {
@@ -277,7 +277,6 @@
 
         if( options.jsonml ) {
           var htmlFromJson = JsonML.toHTML( options.jsonml );
-          //innerDiv.appendChild( htmlFromJson );
 
           var links = htmlFromJson.querySelectorAll(".toc-item-link");
           for( var i = 0; i < links.length; i++) {
@@ -312,7 +311,10 @@
                 context.play( start );
               }
             }*/
-          }
+
+
+
+          //}
 
           /*for (var i = 0; i < tocItems.length; i++) {
             var item = tocItems[i];
@@ -332,10 +334,11 @@
           };*/
 
 
-        }
+        /*}
 
       };
-      fontSheet.href = "//fonts.googleapis.com/css?family=" + options.fontFamily.replace( /\s/g, "+" ) + ":400,700";
+      fontSheet.href
+      = "//fonts.googleapis.com/css?family=" + options.fontFamily.replace( /\s/g, "+" ) + ":400,700";*/
 
 
       options.toString = function() {

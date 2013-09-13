@@ -1,6 +1,11 @@
 .popcorn-chapter {
-  color: #FFF;
-  font-size: 22.5em;
+  font-size: 1em;
+  font-weight: 300;
+  /*background-color: rgba(0,0,0,0.8);*/
+  padding: .5em;
+  height: inherit;
+  width: inherit;
+  font-family: "Helvetica Neue", sans-serif;
 }
 
 .popcorn-chapter.off {

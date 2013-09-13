@@ -278,32 +278,39 @@ function init() {
     var tocLinks = htmlToc.querySelectorAll(".toc-item-link");
 
     function updateCurrentTocItem() {
-      var currentLink = htmlToc.querySelector(".current");
-      if(currentLink) currentLink.classList.remove("current");
-      
-      var newLink;
+      var currentLinks = htmlToc.querySelectorAll(".current-toc-item");
+      if( currentLinks ) {
+        jQuery.each( currentLinks, function() {
+          this.classList.remove("current-toc-item");
+        });
+      }
+
+      var newLinks = [];
       for (var j = 0; j < tocItems.length; j++) {
-        var it = tocItems[j],
+        var item = tocItems[j],
           currentTime = context.currentTime();
-        if( currentTime >= it.start && currentTime <= it.end ) {
-          newLink = it.link;
-          break;
+        if( currentTime >= item.start && currentTime < item.end ) {
+          item.link.classList.add("current-toc-item");
+          newLinks.push( item.link );
         }
       }
-      if( newLink ) newLink.classList.add("current");
     }
 
+    // Build toc items data list.
+    // Used to switch from one par to another. 
     for( var i = 0; i < tocLinks.length; i++) {
       var tocLink = tocLinks[ i ];
       tocLink.innerHTML = reconstituteHTML( tocLink.innerHTML );
 
       var end = tocLink.getAttribute('data-end'),
         start = tocLink.getAttribute('data-start'),
+        level = tocLink.getAttribute('data-level'),
         tocItem = {};
 
       // Set data. Usefull to display tooltips of current chapter.
-      tocItem.end = end;
-      tocItem.start = start;
+      tocItem.end = parseFloat( end );
+      tocItem.start = parseFloat( start );
+      tocItem.level = parseFloat( level );
       tocItem.link = tocLink;
 
       tocItems.push(tocItem);
@@ -322,7 +329,109 @@ function init() {
       }
     }
 
+    // Set as global var of the popcorn instance to get it in controls.js
     popcorn.data.running.toc[0].tocItems = tocItems;
+
+    // Build toc labels list.
+    // Used for tooltips in the player timeline.
+
+    var tocStarts = [];
+
+    var tocTooltips = [],
+      h1Count = 0;
+
+    jQuery( htmlToc ).find(".toc-item-link[data-level='3']").each(function() {
+      tocStarts.push( this.getAttribute("data-start") );
+    });
+
+    function addTooltip( start, end, h1Count, titles ) {
+      var tocTooltip = {};
+      tocTooltip.start = parseFloat( start );
+      tocTooltip.end = parseFloat( end );
+      tocTooltip.h1Count = parseFloat( h1Count );
+      tocTooltip.titles = titles;
+      tocTooltip.tocBars = [];
+      tocTooltips.push( tocTooltip );
+    }
+
+    jQuery( htmlToc ).find("[data-level='1']").each(function() {
+      var h1Chapter = this,
+        titles = [],
+        tocTooltip = {};
+
+      ++h1Count;
+
+      // If no further child, add a toc tooltip
+      if( jQuery( h1Chapter ).parent().children().length == 1 ) {
+        titles.push( h1Chapter.innerHTML );
+        addTooltip( h1Chapter.getAttribute("data-start"),
+          h1Chapter.getAttribute("data-end"),
+          h1Count,
+          titles );
+      }
+
+      jQuery( h1Chapter ).parent().find("[data-level='2']").each(function() {
+        var h2Chapter = this;
+
+        // If no further child, add a toc tooltip
+        if( jQuery( h2Chapter ).parent().children().length == 1 ) {
+          titles.push( h2Chapter.innerHTML );
+          addTooltip( h2Chapter.getAttribute("data-start"),
+            h2Chapter.getAttribute("data-end"),
+            h1Count,
+            titles );          
+          titles = [];
+        }
+
+        jQuery( h2Chapter ).parent().find("[data-level='3']").each(function() {
+          var h3Chapter = this;
+
+          titles.push( h1Chapter.innerHTML );
+          titles.push( h2Chapter.innerHTML );
+          titles.push( h3Chapter.innerHTML );
+
+          addTooltip( h3Chapter.getAttribute("data-start"),
+            h3Chapter.getAttribute("data-end"),
+            h1Count,
+            titles );
+
+          titles = [];
+        });
+      });
+    });
+
+    // Set as global var of the popcorn instance to get it in controls.js
+    popcorn.data.running.toc[0].tocTooltips = tocTooltips;
+
+    // First fetch only h3 chapter to get start ime list
+    /*for( var i = 0; i < tocStarts.length; i++) {
+
+      var start = tocStarts[i],
+        tocTooltip = {},
+        tocTitles = [];
+
+      jQuery( htmlToc ).find(".toc-item-link[data-start='"+start+"']").each( function() {
+        var level = jQuery(this).attr("data-level");
+        if( level == 1 ) {
+          ++h1Count;
+        }
+        tocTitles.push( jQuery(this).html() );
+      });
+
+      tocTooltip.start = start;
+      tocTooltip.h1Count = h1Count;
+      tocTooltip.titles = tocTitles;
+      tocTooltips.push( tocTooltip );
+
+    }*/
+
+    /*var tocLabels = [],
+      tocLink,
+      level;
+    for( var i = 0; i < tocLinks.length; i++) {
+      var tocLink = tocLinks[ i ],
+        level = tocLink.getAttribute('data-level');
+    }*/
 
     // Update toc whenever receives the order to update it
     context.on("updateToc", updateCurrentTocItem);
@@ -336,6 +445,8 @@ function init() {
 
     toggler.addEventListener( "click", function() {
       container.classList.toggle( "attribution-on" );
+      videoContainer = document.querySelectorAll( ".container" )[ 0 ]
+      videoContainer.classList.toggle( "reduced-on" );
     }, false );
 
     /*closeBtn.addEventListener( "click", function() {

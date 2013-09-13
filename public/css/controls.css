@@ -108,17 +108,45 @@
 }
 
 .controls-tocbar-item {
-  background: #9EAFBA;
-  height: 10px;
-  float: left;
 }
 
+.controls-tocbar-item-h1 {
+background: #000;
+height: 2px;
+top: -4px;
+opacity: 0.3;
+}
+
+.controls-tocbar-item-h2 {
+background: #000;
+height: 2px;
+top: -1px;
+opacity: 0.3;
+}
+
+.controls-tocbar-item-h3 {
+background: #9EAFBA;
+height: 8px;
+top: 2px;
+border-right: 1px solid #FFF;
+}
+
+
 .even {
-  opacity: 0.8;
+  opacity: 0.2;
 }
 
 .odd {
   opacity: 0.4;
+}
+
+.current-tocbar-item {
+  opacity: 0.8;
+}
+
+.playing-tocbar-item {  
+  background: #9EAFBA;
+  opacity: 1;
 }
 
 #controls-timebar {

@@ -7,7 +7,7 @@
   transition: @transition1;
 }
 
-@creditsLogoSize: 25px;
+@creditsLogoSize: 35px;
 @red: #CB3E21;
 @attributionZIndex: 3;
 @postRollZIndex: 2;
@@ -44,6 +44,7 @@ body {
 .embed {
   width: 100%;
   height: 100%;
+  background-color: #505050;
 }
 
 .container {
@@ -51,6 +52,10 @@ body {
   width: 100%;
   height: 100%;
   z-index: @videoZIndex;
+}
+
+.container.reduced-on {
+  width: 70%;
 }
 
 .video {
@@ -118,32 +123,12 @@ body {
     color: #555;
   }
 }
-// Adjust font size for other sizes
-@media only screen and ( min-width: @medium ) {
-  .attribution-info {
-    font-size: 16px;
-  }
-}
-@media only screen and ( min-width: @large ) {
-  .attribution-info {
-    font-size: 21.325px;
-  }
-}
-@media only screen and ( min-width: @xlarge ) {
-  .attribution-info {
-    font-size: 28px;
-  }
-}
+
 
 .attribution-logo {
   position: absolute;
-  top: 18px;
-  right: 20px;
-  width: @creditsLogoSize;
-  height: @creditsLogoSize;
-  border-radius: @creditsLogoSize;
   text-align: center;
-  background-color: @red;
+  background: @red url("../resources/controls/controls_icons.png" ) no-repeat;
   /*background-image: url("../media/img/glyphiconshalflings-white.png");
   background-position: -264px 0;*/
   color: #FFF;
@@ -156,7 +141,6 @@ body {
     top: 3px;
     font-size: 30px;
     font-family: Georgia, serif;
-    content: '\0201c';
   }
   &:hover {
     opacity: 1;
@@ -174,26 +158,32 @@ body {
   line-height: @creditsLogoSize;
   left: @creditsLogoSize + 6;
   visibility: hidden;
-  text-shadow: 0 0 5px rgba( 0, 0, 0, 0.3 );
+  text-shadow: 0 0 8px rgb(0, 0, 0);
   .transition( all 0.1s ease );
 }
 
 @media only screen and ( min-width: @large ) {
   .attribution-logo {
-    width: @creditsLogoSize + 5;
-    height: @creditsLogoSize + 5;
-    border-radius: @creditsLogoSize + 5;
+    width: @creditsLogoSize;
+    height: @creditsLogoSize;
+    border-radius: @creditsLogoSize;
+    top: 12px;
+    right: 12px;
     &:before { font-size: 40px; }
   }
-  .attribution-text {
-    /*left: @creditsLogoSize + 14;
-    line-height: @creditsLogoSize + 5;*/
+  /*.attribution-text {
+    left: @creditsLogoSize + 14;
+    line-height: @creditsLogoSize + 5;
     left: -110px;
+  }*/
+  .attribution-text {
+    visibility: visible;
   }
 }
 
 .attribution-content {
-  ul.toc-list {
+  background-color: #FFF;
+  ul {
     list-style-type: none;
     margin: 0;
     padding: 0;
@@ -202,25 +192,26 @@ body {
     border-bottom: 1px solid #d5d6d5;
   }
 
-  ul.toc-list li {
+  ul li {
     float: left;
     width: 100%!important;
     border-top: 1px solid #d5d6d5;
-    background-color: rgba( 0, 0, 0, 0.05 );
+    background-color: rgba( 0, 0, 0, 0.04 );
     &:hover {
-      background-color: rgba( 255, 255, 255, 99.95 );
+      background-color: rgba( 255, 255, 255, 99.96 );
     }
   }
 
-  ul.toc-list li a {
+  ul li a {
     display: block;
     font-size: 0.8em;
     text-decoration: none;
-    padding: 1.2em 1.4em;
+    padding: 1em 1.2em;
   }
 
-  ul.toc-list li a.current {
+  ul li a.current-toc-item {
     font-weight: bold;
+    background: #FFF;
   }
 
 }
@@ -230,7 +221,7 @@ body {
   top: 0;
   right: 0;
   bottom: 42px;
-  width: 300px;
+  width: 12em;
   /*padding-left: 1.2em;
   padding-top: 1em;
   padding-bottom: 1em;*/
@@ -238,7 +229,7 @@ body {
   color: black;
   border-left: 1px solid #d5d6d5;
   overflow: scroll;
-  .transition( opacity .2s ease );
+  //.transition( opacity .2s ease );
 }
 
 .attribution-mopop {
@@ -252,7 +243,8 @@ body {
   max-width: 90%;
   overflow: hidden;
   text-overflow: ellipsis;
-  padding: 0.8em;
+  padding: 0.4em 0.8em;
+  margin-right: 40px;
 }
 .attribution-author {
   font-style: italic;
@@ -325,7 +317,8 @@ body {
 // when the logo is clicked, show the credits
 .attribution-on {
   .attribution-logo {
-    opacity: 1;
+    opacity: 0.5;
+
      .attribution-text {
       visibility: hidden;
     }
@@ -726,6 +719,46 @@ body {
 @large: 853px;
 @xlarge: 1280px;
 
+// Adjust font size for other sizes
+@media only screen and ( min-width: @medium ) {
+  .attribution-logo {
+    top: 8px;
+    right: 10px;
+    width: @creditsLogoSize - 10;
+    height: @creditsLogoSize - 10;
+    border-radius: @creditsLogoSize - 10;
+    background-position: -154px -2px;
+  }
+  .attribution-info {
+    font-size: 16px;
+  }
+}
+@media only screen and ( min-width: @large ) {
+  .attribution-logo {
+    top: 8px;
+    right: 10px;
+    width: @creditsLogoSize;
+    height: @creditsLogoSize;
+    background-position: -124px 3px;
+  }
+  .attribution-info {
+    font-size: 21.325px;
+  }
+}
+@media only screen and ( min-width: @xlarge ) {
+  .attribution-logo {
+    top: 18px;
+    right: 20px;
+    width: @creditsLogoSize;
+    height: @creditsLogoSize;
+    background-position: -124px 3px;
+  }
+  .attribution-info {
+    font-size: 28px;
+  }
+}
+
+
 @media only screen and ( max-width: @large ) {
 
   #post-roll, #share {
@@ -809,7 +842,6 @@ body {
 
 
 @media only screen and ( max-width: @small ) {
-
   #post-roll, #share {
 
     font-size: 13px;
