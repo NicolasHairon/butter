@@ -28,6 +28,29 @@ html(lang='en')
         #video.video
       .loading-message
     #controls-big-play-button
+    #post-roll-container
+      #post-roll.embed-overlay
+        .post-roll-inner
+          a.embed-logo
+          .embed-project
+            div
+              .mozpopcorn Popcorn Maker
+              .embed-title #{title}
+              .embed-author #{author}
+            .post-roll-description
+              | #{description}
+              br
+              a(href='/', target='_blank') Create a project like this!
+            ul.embed-nav.post-roll-options
+              li
+                a#replay-post
+                  span Replay
+              li
+                a(href='#{remixUrl}', target='_blank')#remix-post
+                  span Remix
+              li
+                a#share-post
+                  span Share
     #share-container
       #share.embed-overlay
         .share-inner
