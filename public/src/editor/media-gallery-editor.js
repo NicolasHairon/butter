@@ -203,8 +203,6 @@ define( [ "util/lang", "util/uri", "util/keys", "util/mediatypes", "editor/edito
     // Fetch all urls from input
     for(i = 0; i < urlList.length; i++) {
       $(_galleryPanel).queue( 'addAllMediaTask', createAddMediaTask( urlList[i] ) );
-      // TODO: make call chaining work
-      //addMediaToGallery( urlList[i], onDenied );
     }
 
     _loadingSpinner.classList.remove( "hidden" );

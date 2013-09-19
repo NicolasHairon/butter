@@ -23,15 +23,14 @@ define( [ "util/lang", "util/time", "util/sanitizer",
         scrubber, seeking, playStateCache, active, duration,
         controlsBars,
         volume, volumeProgressBar, volumeScrubber, position,
-        controlsShare, controlsRemix, controlsFullscreen, //controlsToc,
+        controlsShare, controlsRemix, controlsFullscreen,
         jsonToc, htmlToc, tocItems, tocTooltips, currentTocTooltip, playingTocTooltip,
-        tooltipTime, tooltipTitles, tooltipH1, tooltipH2, tooltipH3,
+        tooltipTime, tooltipTitles, topTitle, middleTitle, bottomTitle,
         // functions
         bigPlayClicked, activate, deactivate, volumechange,
-        togglePlay, timeMouseOver, timeMouseUp,
+        togglePlay, controlsMouseOver, controlsMouseUp,
         onTocReady,
-        //timeToolTipMouseMove,
-        timeMouseDown, timeMouseMove, volumeMouseMove, volumeMouseUp,
+        controlsMouseDown, controlsMouseMove, volumeMouseMove, volumeMouseUp,
         volumeMouseDown, durationchange, mutechange;
 
     // Deal with callbacks for various buttons in controls
@@ -82,10 +81,8 @@ define( [ "util/lang", "util/time", "util/sanitizer",
       volumeProgressBar = document.getElementById( "controls-volume-progressbar" );
       volumeScrubber = document.getElementById( "controls-volume-scrubber" );
       controlsShare = document.getElementById( "controls-share" );
-      controlsRemix = document.getElementById( "controls-remix" );
-      controlsFullscreen = document.getElementById( "controls-fullscreen" );
-      //controlsToc = document.getElementById( "controls-toc" );
-      //controlsLogo = document.getElementById( "controls-logo" );
+      //controlsRemix = document.getElementById( "controls-remix" );
+      //controlsFullscreen = document.getElementById( "controls-fullscreen" );
       seeking = false;
       playStateCache = false;
       active = false;
@@ -95,50 +92,64 @@ define( [ "util/lang", "util/time", "util/sanitizer",
       tooltipTime.classList.add("tooltip-time");
       tooltipTitles = document.createElement("div");
       tooltipTitles.classList.add("tooltip-titles");
-      tooltipH1 = document.createElement("span");
-      tooltipH1.classList.add("tooltip-h1");
-      tooltipH2 = document.createElement("span");
-      tooltipH2.classList.add("tooltip-h2");
-      tooltipH3 = document.createElement("span");
-      tooltipH3.classList.add("tooltip-h3");
 
       timeTooltip.appendChild(tooltipTime);
-      tooltipTitles.appendChild(tooltipH1);
-      tooltipTitles.appendChild(tooltipH2);
-      tooltipTitles.appendChild(tooltipH3);
 
       timeTooltip.appendChild(tooltipTitles);
-      /*timeTooltip.appendChild(tooltipH2);
-      timeTooltip.appendChild(tooltipH3);*/
 
       jsonToc = p.data.running.toc[0].jsonml;
       htmlToc = JsonML.toHTML( jsonToc );
-      //tocItems = p.data.running.toc[0].tocItems;
       tocTooltips = p.data.running.toc[0].tocTooltips;
 
       // Wire custom callbacks for right-hand buttons
       controlsShare.addEventListener( "click", onShareClick, false );
-      controlsRemix.addEventListener( "click", onRemixClick, false );
-      controlsFullscreen.addEventListener( "click", onFullscreenClick, false );
+      //controlsRemix.addEventListener( "click", onRemixClick, false );
+      //controlsFullscreen.addEventListener( "click", onFullscreenClick, false );
 
       var tocLinks = htmlToc.querySelectorAll(".toc-item-link"),
         h1Count = 0,
         h2Count = 0,
         h3Count = 0;
 
+      var maxTocDepth = 0;
+      $(htmlToc).find("li:not(:has(ul))").each(function() {
+        var cur = $(this).parents("ul").length;
+        if (cur > maxTocDepth) maxTocDepth = cur;
+      });
+      
+      // Set tooltip titles containers
+      if( maxTocDepth == 3 ) {
+        topTitle = document.createElement("span");
+        topTitle.classList.add("tooltip-title-top");      
+        tooltipTitles.appendChild(topTitle);
+
+        timeTooltip.classList.add("controls-time-tooltip-large");  
+      }
+      if( maxTocDepth >= 2 ) {
+        middleTitle = document.createElement("span");
+        middleTitle.classList.add("tooltip-title-middle");      
+        tooltipTitles.appendChild(middleTitle);
+
+        timeTooltip.classList.add("controls-time-tooltip-medium");  
+      }
+      if( maxTocDepth >= 1 ) {
+        bottomTitle = document.createElement("span");
+        bottomTitle.classList.add("tooltip-title-bottom");     
+        tooltipTitles.appendChild(bottomTitle);
+
+        timeTooltip.classList.add("controls-time-tooltip-small");  
+      }
+
       // Set toc bar items
       for( var i = 0; i < tocLinks.length; i++) {
         var tocLink = tocLinks[ i ],
           newTocbarItem = document.createElement('div');
         
-        //newTocbarItem.classList.add("controls-tocbar-item");
-
         tocLink.innerHTML = Sanitizer.reconstituteHTML( tocLink.innerHTML );
 
         var end = tocLink.getAttribute('data-end'),
           start = tocLink.getAttribute('data-start'),
           level = tocLink.getAttribute('data-level');
-
 
         var itemLeft = start/duration * 100 + "%",
           itemWidth = (end-start)/duration * 100 + "%";
@@ -147,20 +158,43 @@ define( [ "util/lang", "util/time", "util/sanitizer",
         newTocbarItem.style.left = itemLeft;
         newTocbarItem.style.width = itemWidth;
 
+        newTocbarItem.setAttribute("data-start", start);
+
         if( level==1 ) {
           ++h1Count;
-          //tocLink.innerHTML = "Partie "+h1Count+"<br/>"+tocLink.innerHTML;
-          newTocbarItem.classList.add("controls-tocbar-item-h1");
+          if( maxTocDepth == 3 )
+            newTocbarItem.classList.add("controls-tocbar-item-top");
+          else if( maxTocDepth == 2 )
+            newTocbarItem.classList.add("controls-tocbar-item-middle");
+          else if( maxTocDepth == 1 ) {
+            (h1Count%2 === 0) ? newTocbarItem.classList.add("even") : newTocbarItem.classList.add("odd");
+            newTocbarItem.classList.add("controls-tocbar-item-bottom");
+          }
+
         }
         else if( level==2 ) {
           ++h2Count;
-          newTocbarItem.classList.add("controls-tocbar-item-h2");          
+          if( maxTocDepth == 3 )
+            newTocbarItem.classList.add("controls-tocbar-item-middle");
+          else {
+            (h2Count%2 === 0) ? newTocbarItem.classList.add("even") : newTocbarItem.classList.add("odd");
+            newTocbarItem.classList.add("controls-tocbar-item-bottom");
+          }
         }
         else if( level==3 ) {
           ++h3Count;
           (h3Count%2 === 0) ? newTocbarItem.classList.add("even") : newTocbarItem.classList.add("odd");
-          newTocbarItem.classList.add("controls-tocbar-item-h3");
+           newTocbarItem.classList.add("controls-tocbar-item-bottom");
         }
+
+        newTocbarItem.addEventListener("click", function(e) {
+          var start = e.target.getAttribute("data-start");
+          if ( p.paused() ) {
+            p.pause( start );
+          } else {
+            p.play( start );
+          }
+        }, false);
 
         tocbar.appendChild( newTocbarItem );
 
@@ -275,12 +309,11 @@ define( [ "util/lang", "util/time", "util/sanitizer",
         }
 
         if ( p.paused() ) {
-
           p.play();
         } else {
-
           p.pause();
         }
+
       };
 
       prevClick = function( e ) {
@@ -295,25 +328,6 @@ define( [ "util/lang", "util/time", "util/sanitizer",
         var currentTime = p.currentTime(),
           targetTocTooltip;
 
-        /*for (var i = 0; i < tocItems.length; i++) {
-          var item = tocItems[i];
-          if( currentTime >= item.start && currentTime <= item.end ) {
-            currentItem = item;
-            if( toPrev ) {
-              if( i > 0 )
-                targetItem = tocItems[i-1];
-              else if(i==0)
-                targetItem = tocItems[0];
-            }
-            else {
-              if( i < tocItems.length-1 )
-                targetItem = tocItems[i+1];
-              else if(i == tocItems.length-1)
-                targetItem = tocItems[tocItems.length-1];
-            }
-            break;
-          }
-        }*/
         for (var i = 0; i < tocTooltips.length; i++) {
           var tocTooltip = tocTooltips[i];
           if( currentTime >= tocTooltip.start && currentTime < tocTooltip.end ) {
@@ -529,39 +543,43 @@ define( [ "util/lang", "util/time", "util/sanitizer",
           var currentTime = Math.floor(position / timebar.offsetWidth * duration);
           tooltipTime.innerHTML = Time.toTimecode( currentTime, 0 );
 
-          /*tooltipH1.innerHTML = "";
-          for (var i = 0; i < tocItems.length; i++) {
-            var item = tocItems[i];
-            if( currentTime > item.start && currentTime < item.end ) {
-              tooltipH1.innerHTML = item.link.innerHTML;
-              break;
-            }
-          }*/
-
           for (var i = 0; i < tocTooltips.length; i++) {
             var tocTooltip = tocTooltips[i];
             if( currentTime >= tocTooltip.start && currentTime <= tocTooltip.end ) {
 
               if(currentTocTooltip != tocTooltip) {
                 toggleCurrentTocBars(false);
-                currentTocTooltip = tocTooltip;
-                toggleCurrentTocBars(true);                
+                currentTocTooltip = tocTooltip;   
+
+                if( maxTocDepth == 3 ) {
+                  if(tocTooltip.titles.length >= 1)
+                    topTitle.innerHTML = tocTooltip.titles[0];
+                  if(tocTooltip.titles.length >= 2)
+                      middleTitle.innerHTML = tocTooltip.titles[1];
+                  if(tocTooltip.titles.length == 3)
+                      bottomTitle.innerHTML = tocTooltip.titles[2];
+
+                }
+                else if( maxTocDepth == 2 ) {
+                  if(tocTooltip.titles.length >= 1)
+                    middleTitle.innerHTML = tocTooltip.titles[0];
+                  if(tocTooltip.titles.length >= 2)
+                    bottom.innerHTML = tocTooltip.titles[1];
+                }
+                else if( maxTocDepth == 1 ) {
+                  if(tocTooltip.titles.length >= 1)
+                    bottomTitle.innerHTML = tocTooltip.titles[0];
+                }       
               }
 
-              tooltipH1.innerHTML = tocTooltip.titles[0];
-              if(tocTooltip.titles.length >= 2)
-                  tooltipH2.innerHTML = tocTooltip.titles[1];
-              if(tocTooltip.titles.length == 3)
-                  tooltipH3.innerHTML = tocTooltip.titles[2];
-          
-              //tooltipH1.innerHTML = tocTooltip.titles.join("<br/>");
+              toggleCurrentTocBars(true);          
               break;
             }
           }
 
         }
 
-        timeMouseMove = function( e ) {
+        controlsMouseMove = function( e ) {
 
           e.preventDefault();
 
@@ -585,18 +603,14 @@ define( [ "util/lang", "util/time", "util/sanitizer",
             scrubber.style.left = ( ( position - ( scrubber.offsetWidth / 2 ) ) / timebar.offsetWidth * 100 ) + "%";
           }
 
-          p.currentTime( position / timebar.offsetWidth * 100 * p.duration() / 100 );
-          //timeTooltip.style.left = position + "px";
+          if( e.currentTarget.id != "controls-bar") {
+            p.currentTime( position / timebar.offsetWidth * 100 * p.duration() / 100 );
+          }
+
           setTimeTooltip();
         };
-/*
-        timeToolTipMouseMove = function( e ) {
-          position = e.clientX - timebar.getBoundingClientRect().left;
-          timeTooltip.style.left = position + "px";
-          setTimeTooltip();
-        }
-*/
-        timeMouseUp = function( e ) {
+
+        controlsMouseUp = function( e ) {
           if ( e.button !== 0 ) {
             return;
           }
@@ -609,13 +623,13 @@ define( [ "util/lang", "util/time", "util/sanitizer",
           if ( playStateCache ) {
             p.play();
           }
-          window.removeEventListener( "mouseup", timeMouseUp, false );
-          window.removeEventListener( "mousemove", timeMouseMove, false );
+          window.removeEventListener( "mouseup", controlsMouseUp, false );
+          window.removeEventListener( "mousemove", controlsMouseMove, false );
           p.emit("updateToc");
           setPlayingTocBar();
         };
 
-        timeMouseDown = function( e ) {
+        controlsMouseDown = function( e ) {
           if ( e.button !== 0 ) {
             return;
           }
@@ -626,8 +640,24 @@ define( [ "util/lang", "util/time", "util/sanitizer",
           seeking = true;
           playStateCache = !p.paused();
           p.pause();
-          window.addEventListener( "mouseup", timeMouseUp, false );
-          window.addEventListener( "mousemove", timeMouseMove, false );
+          window.addEventListener( "mouseup", controlsMouseUp, false );
+          window.addEventListener( "mousemove", controlsMouseMove, false );
+
+          p.emit("updateToc");
+          setPlayingTocBar();
+        };
+
+        timeBarMouseDown = function( e ) {
+          if ( e.button !== 0 ) {
+            return;
+          }
+
+          position = e.clientX - timebar.getBoundingClientRect().left;
+
+          e.preventDefault();
+          seeking = true;
+          playStateCache = !p.paused();
+          p.pause();
 
           if ( progressBar ) {
             progressBar.style.width = ( position / timebar.offsetWidth * 100 ) + "%";
@@ -637,12 +667,13 @@ define( [ "util/lang", "util/time", "util/sanitizer",
             scrubber.style.left = ( ( position - ( scrubber.offsetWidth / 2 ) ) / timebar.offsetWidth * 100 ) + "%";
           }
 
-          p.currentTime( position / timebar.offsetWidth * p.duration() );
+          p.currentTime( position / timebar.offsetWidth * p.duration() );            
+
           p.emit("updateToc");
           setPlayingTocBar();
         };
 
-        function onTimelineMouseMove( e ) {
+        function timeBarMouseMove( e ) {
           position = e.clientX - timebar.getBoundingClientRect().left;
 
           if ( position < 0 ) {
@@ -655,32 +686,29 @@ define( [ "util/lang", "util/time", "util/sanitizer",
           setTimeTooltip();
         }
 
-        /*function setTimeTooltip() {
-          //timeTooltip.innerHTML = Time.toTimecode( p.currentTime(), 0 );
-          timeTooltip.innerHTML = Time.toTimecode( position / timebar.offsetWidth * _media.duration, 0 );
-        }*/
-
-        timeMouseOver = function( e ) {
-          onTimelineMouseMove( e );
+        controlsMouseOver = function( e ) {
+          timeBarMouseMove( e );
           timeTooltip.classList.add( "tooltip-no-transition-on" );
 
-          timebar.addEventListener( "mousemove", onTimelineMouseMove, false );
-          timebar.removeEventListener( "mouseover", timeMouseOver, false );
-          timebar.addEventListener( "mouseout", timeMouseOut, false );
+          controlsBars.addEventListener( "mousemove", timeBarMouseMove, false );
+          controlsBars.removeEventListener( "mouseover", controlsMouseOver, false );
+          controlsBars.addEventListener( "mouseout", controlsMouseOut, false );
         }
 
-        timeMouseOut = function( e ) {
+        controlsMouseOut = function( e ) {
           timeTooltip.classList.remove( "tooltip-no-transition-on" );
 
-          timebar.removeEventListener( "mousemove", onTimelineMouseMove, false );
-          timebar.removeEventListener( "mouseout", timeMouseOut, false );
-          timebar.addEventListener( "mouseover", timeMouseOver, false );
+          controlsBars.removeEventListener( "mousemove", timeBarMouseMove, false );
+          controlsBars.removeEventListener( "mouseout", controlsMouseOut, false );
+          controlsBars.addEventListener( "mouseover", controlsMouseOver, false );
 
           toggleCurrentTocBars(false);
         }
 
-        timebar.addEventListener( "mouseover", timeMouseOver, false );
-        timebar.addEventListener( "mousedown", timeMouseDown, false );
+        controlsBars.addEventListener( "mouseover", controlsMouseOver, false );
+        controlsBars.addEventListener( "mousedown", controlsMouseDown, false );
+        
+        timebar.addEventListener( "mousedown", timeBarMouseDown, false );
 
 
         p.on( "timeupdate", function() {

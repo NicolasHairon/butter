@@ -31,11 +31,15 @@ define([ "editor/editor", "editor/base-editor", "util/lang", "util/keys", "util/
 
     setup();
 
-    function Time( parentNode ){
+    function TimeBox( parentNode, newValue ){
       var _timeBox = $(parentNode).find("input").get(0),
           _oldValue = 0;
 
-      function setTime( time, setCurrentTime ){
+      if( newValue ) {
+        setTime( newValue );
+      }
+
+      function setTime( time ){
         if( typeof( time ) === "string" || !isNaN( time ) ){
           try {
             time = TimeUtils.toSeconds( time );
@@ -44,7 +48,7 @@ define([ "editor/editor", "editor/base-editor", "util/lang", "util/keys", "util/
             _timeBox.value = _oldValue;
           } //try
 
-          _timeBox.value = TimeUtils.toTimecode( time, 0 );
+          _timeBox.value = TimeUtils.toTimecode( time, 2 );
           if(_rendered) {
             updateTrackEvent( $(parentNode).parent().get(0) );
           }
@@ -60,7 +64,7 @@ define([ "editor/editor", "editor/base-editor", "util/lang", "util/keys", "util/
 
       _timeBox.addEventListener( "blur", function(){
         if( _timeBox.value !== _oldValue ){
-          setTime( _timeBox.value, true );
+          setTime( _timeBox.value );
         } //if
       }, false );
 
@@ -89,7 +93,9 @@ define([ "editor/editor", "editor/base-editor", "util/lang", "util/keys", "util/
         dragBtn = newTocItem.querySelector( ".toc-item-handle" ),
         contentDiv = newTocItem.querySelector( ".toc-item-content" ),
         deleteBtn = newTocItem.querySelector( ".toc-item-delete" ),
-        label;
+        label,
+        startBox,
+        endBox;
 
       deleteBtn.addEventListener( "click", onDeleteBtnClick, false );
 
@@ -101,6 +107,17 @@ define([ "editor/editor", "editor/base-editor", "util/lang", "util/keys", "util/
         label = _count;
       }
       $(newTocItem).find( ".dd3-content" ).first().text( label );
+
+      if( seqTrackEvent!=undefined ) {
+        startBox = new TimeBox(
+          $(newTocItem).find(".toc-item-time-start"),
+          seqTrackEvent.popcornOptions.start
+        );
+        endBox = new TimeBox(
+          $(newTocItem).find(".toc-item-time-end"),
+          seqTrackEvent.popcornOptions.end
+        );        
+      }
 
       _tocEditorDiv.classList.add("visible");
       _clearBtn.classList.add("visible");
@@ -170,8 +187,8 @@ define([ "editor/editor", "editor/base-editor", "util/lang", "util/keys", "util/
         var $element = $(editorElement),
             popcornOptions = trackEvent.popcornOptions;
         $element.find( ".dd3-content" ).first().text(popcornOptions.text);
-        $element.find( ".toc-item-time-start input" ).first().val( TimeUtils.toTimecode(popcornOptions.start) ) ;
-        $element.find( ".toc-item-time-end input" ).first().val( TimeUtils.toTimecode(popcornOptions.end) ) ;
+        $element.find( ".toc-item-time-start input" ).first().val( TimeUtils.toTimecode(popcornOptions.start, 2) ) ;
+        $element.find( ".toc-item-time-end input" ).first().val( TimeUtils.toTimecode(popcornOptions.end, 2) ) ;
         updateToc();
       }
     }
@@ -343,8 +360,8 @@ define([ "editor/editor", "editor/base-editor", "util/lang", "util/keys", "util/
       popcornOptions.text  = text;
       popcornOptions.level = level;
 
-      startBox = new Time($element.find(".toc-item-time-start"));
-      endBox = new Time($element.find(".toc-item-time-end"));
+      startBox = new TimeBox($element.find(".toc-item-time-start"));
+      endBox = new TimeBox($element.find(".toc-item-time-end"));
 
       trackEvent = generateSafeChapterTrackEvent( popcornOptions, track );
 
@@ -656,8 +673,8 @@ define([ "editor/editor", "editor/base-editor", "util/lang", "util/keys", "util/
 
           parentEditorList.appendChild( editorTocItem );
 
-          startBox = new Time( $editorTocItem.find(".toc-item-time-start") );
-          endBox = new Time( $editorTocItem.find(".toc-item-time-end") );
+          startBox = new TimeBox( $editorTocItem.find(".toc-item-time-start") );
+          endBox = new TimeBox( $editorTocItem.find(".toc-item-time-end") );
 
           // Listen to updates on track event
           trackEvent.listen( "trackeventupdated", onTrackEventUpdated );

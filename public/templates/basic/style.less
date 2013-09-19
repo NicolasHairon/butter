@@ -137,13 +137,20 @@ body.editor-minimized .body-wrapper {
 .video {
   position: relative;
   width: 100%;
-  padding-bottom: 56.25%;
+
+
+  padding-bottom: 56.6%;
+
   height: 0;
   z-index: 1;
-  background: #FFF;
+  background: #000;
   .butter-header-spacing & {
     box-shadow: inset 0 0 0 1px #DDD;
   }
+}
+
+.reduced-on .video {  
+  padding-bottom: 80.5%;
 }
 
 .video > video,
@@ -258,8 +265,6 @@ body.editor-minimized .body-wrapper {
   font-size: 12px;
   font-weight: bold;
   line-height: 16px;
-  top: -74px;
-  height: 70px;
   border-radius: 3px;
 
 
@@ -281,12 +286,31 @@ body.editor-minimized .body-wrapper {
   }
 }
 
+.controls-time-tooltip-large {
+  top: -73px;
+  height: 70px;
+
+  .tooltip-time {
+    vertical-align: 15px;
+  }
+}
+
+.controls-time-tooltip-medium {
+  top: -73px;
+  height: 70px;
+  
+}
+
+.controls-time-tooltip-small {
+  top: -39px;
+  height: 35px;  
+}
+
 .tooltip-time {
   font-size: 18px;
   font-weight: normal;
   text-align: left;
   margin-right: 10px;
-  vertical-align: 15px;
 }
 
 .tooltip-titles {
@@ -295,7 +319,7 @@ body.editor-minimized .body-wrapper {
   padding-right: 1em;
 }
 
-.tooltip-h1 {
+.tooltip-title-top {
   font-size: 14px;
   font-weight: 300;
   text-align: left;
@@ -304,7 +328,7 @@ body.editor-minimized .body-wrapper {
   white-space:nowrap;
 }
 
-.tooltip-h2 {
+.tooltip-title-middle {
   font-size: 14px;
   font-weight: 300;
   text-align: left;
@@ -313,7 +337,7 @@ body.editor-minimized .body-wrapper {
   white-space:nowrap;
 }
 
-.tooltip-h3 {
+.tooltip-title-bottom {
   font-size: 14px;
   font-weight: 600;
   text-align: left;
