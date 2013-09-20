@@ -164,7 +164,7 @@ top: 0px;
 
 #controls-progressbar {
   height: 100%;
-  background: #1eb771;
+  background: rgba(233, 83, 37, .9);
   position: absolute;
   border-radius: 0px;
 }
@@ -186,7 +186,7 @@ top: 0px;
 }
 
 #controls-currenttime {
-  color: #1eb771;
+  color: #e95325;
   position: relative;
   text-align: left;
   left: auto;
@@ -239,7 +239,7 @@ top: 0px;
 
 #controls-volume-progressbar {
   height: 100%;
-  background: #1eb771;
+  background: rgba(233, 83, 37, .9);
   position: absolute;
   border-radius: 0px;
 }
@@ -268,7 +268,7 @@ top: 0px;
 #controls-play {
   width: 28px;
   height: 28px;
-  background: #1eb771 url( "../resources/controls/controls_icon_playPause.png" ) no-repeat;
+  background: rgba(233, 83, 37, .6) url( "../resources/controls/controls_icon_playPause.png" ) no-repeat;
   padding: 0;
   border-radius: 3px;
   margin-top: 7px;
@@ -277,14 +277,14 @@ top: 0px;
 }
 
 #controls-play:hover {
-  background-color: #60c7a5;
+  background-color: rgba(233, 83, 37, .9);
 }
 
 #controls-prev,
 #controls-next {
   width: 28px;
   height: 28px;
-  background: #1eb771 url( "../resources/controls/controls_icon_playPause.png" ) no-repeat;
+  background-color: rgba(233, 83, 37, .6);
   padding: 0;
   border-radius: 3px;
   margin-top: 7px;
@@ -295,17 +295,23 @@ top: 0px;
 
 #controls-prev {
   left: 0px;
-  background-position: center -41px !important;
+  background-image: url("../resources/controls/btn-previous.png" );
+  background-size: 50%;
+  background-repeat: no-repeat;
+  background-position: 8px;
 }
 
 #controls-next {
   left: 35px;
-  background-position: center -67px !important;
+  background-image: url("../resources/controls/btn-next.png" );
+  background-size: 50%;
+  background-repeat: no-repeat;
+  background-position: 8px;
 }
 
 #controls-prev:hover,
 #controls-next:hover {
-  background-color: #60c7a5;
+  background-color: rgba(233, 83, 37, .9);
 }
 
 #controls-mute {
@@ -342,7 +348,7 @@ top: 0px;
 }
 
 .controls-right div {
-  background: #9EAFBA url( "../resources/controls/controls_icons.png" ) no-repeat;
+  background: rgba(233, 83, 37, .6) url( "../resources/controls/controls_icons.png" ) no-repeat;
   margin-top: 6px;
   margin-left: 6px;
   width: 28px;
@@ -353,11 +359,18 @@ top: 0px;
 }
 
 .controls-right div:hover {
-  background-color: #1eb771;
+  background-color: rgba(233, 83, 37, .9);
 }
 
 #controls-share {
-  background-position: -27px -2px;
+  background: #9EAFBA url("../resources/controls/btn-share.png" );
+  background-size: 50%;
+  background-repeat: no-repeat;
+  background-position: 6px 8px;
+}
+
+#controls-share:hover {
+  background-color: rgba(233, 83, 37, .9);  
 }
 
 #controls-remix {

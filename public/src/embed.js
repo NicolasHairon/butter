@@ -316,6 +316,13 @@ function init() {
       tocItems.push(tocItem);
 
       context.cue( tocItem.start, updateCurrentTocItem);
+      
+      // Workaround to prevent player to pause in the end of item
+      context.cue( tocItem.end, function() {
+        if( context.paused() ) {
+          context.play();
+        }
+      });
 
       tocLink.onclick = function(e) {
         e.preventDefault();
